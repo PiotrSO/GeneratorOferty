@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Sprzątania - V3.1</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root { --primary-color: #0056b3; --bg-color: #f8f9fa; --border-color: #dee2e6; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--bg-color); padding: 20px; max-width: 900px; margin: 0 auto; }
+        h2 { border-bottom: 2px solid var(--primary-color); padding-bottom: 5px; margin-top: 25px; color: var(--primary-color); font-size: 1.1rem; text-transform: uppercase; }
+        
+        .header-section { display: flex; gap: 20px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .form-group { display: flex; flex-direction: column; flex: 1; }
+        label { font-weight: 600; margin-bottom: 5px; font-size: 0.85rem; color: #495057; }
+        .header-section input { padding: 8px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; height: 38px; box-sizing: border-box; }
+
+        .input-table-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 25px; background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .input-item { display: flex; justify-content: space-between; align-items: center; height: 35px; }
+        .input-item label { font-size: 0.75rem; flex: 1; padding-right: 5px; }
+        .input-item input[type="number"] { width: 65px; height: 30px; text-align: center; font-weight: bold; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; -moz-appearance: textfield; }
+
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        table.variants-table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; font-size: 0.85rem; }
+        table.variants-table th, table.variants-table td { border: 1px solid var(--border-color); padding: 8px; text-align: center; vertical-align: middle; }
+        table.variants-table th { background-color: var(--primary-color); color: white; height: 40px; }
+        .variant-col input { font-size: 1.2rem; font-weight: 700; width: 95%; text-align: center; border: none; background: transparent; }
+        tr[data-row="13"] { background-color: #e3f2fd; }
+        
+        #cleaningTimeResult { background-color: #d1e7dd; padding: 12px; border-radius: 5px; margin: 15px 0; font-weight: bold; text-align: center; display: none; }
+        
+        .summary-section { background-color: #fff; padding: 30px; border-radius: 8px; border: 2px solid var(--primary-color); margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 25px; }
+        .summary-section label { font-size: 1.1rem; color: var(--primary-color); margin: 0; font-weight: bold; }
+        
+        #selectedPrice { display: flex; align-items: center; justify-content: center; width: 240px; height: 60px; font-size: 1.6rem; font-weight: 800; color: #198754; border: 2px solid #198754; border-radius: 6px; background-color: #fff; outline: none; cursor: text; }
+
+        .actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+        button { padding: 10px 18px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; color: white; }
+        .btn-calc { background-color: #198754; width: 100%; margin-bottom: 15px; height: 45px; }
+        .btn-save { background-color: #0dcaf0; color: #000; }
+        .btn-jpg { background-color: #dc3545; }
+        .error-text { color: red; font-weight: bold; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div class="header-section">
+        <div class="form-group"><label>Nazwa Klienta/Rodzaj Serwisu</label><input type="text" id="clientName" oninput="saveData()"></div>
+        <div class="form-group"><label>Data</label><input type="date" id="calcDate" onchange="saveData()"></div>
+    </div>
+
+    <h2>1. Parametry Obiektu</h2>
+    <div class="input-table-container">
+        <div class="input-item"><label>Pow. biura [m²]</label><input type="number" id="officeArea" step="0.1" oninput="saveData()"></div>
+        <div class="input-item"><label>Ilość pięter</label><input type="number" id="floors" value="1"></div>
+        <div class="input-item"><label>Stanowiska pracy</label><input type="number" id="workstations"></div>
+        <div class="input-item"><label>Sale konf.</label><input type="number" id="confRooms"></div>
+        <div class="input-item"><label>Pow. podłóg twardych [m²]</label><input type="number" id="hardFloors" step="0.1"></div>
+        <div class="input-item"><label>Kuchnie</label><input type="number" id="kitchens"></div>
+        <div class="input-item"><label>Zmywarki</label><input type="number" id="dishwashers"></div>
+        <div class="input-item"><label>Lodówki</label><input type="number" id="fridges"></div>
+        <div class="input-item"><label>Łazienki</label><input type="number" id="bathrooms"></div>
+        <div class="input-item"><label>Kabiny prysznic.</label><input type="number" id="showers"></div>
+        <div class="input-item"><label>Odkurzanie [dni/tydz]</label><input type="number" id="vacFreq"></div>
+        <div class="input-item"><label>Stanowiska [dni/tydz]</label><input type="number" id="workFreq"></div>
+    </div>
+
+    <button class="btn-calc" onclick="calculateTime()">PRZELICZ CZAS I WSTAW DO TABELI</button>
+    <div id="cleaningTimeResult"></div>
+
+    <h2>2. Kalkulacja Kosztów (Warianty)</h2>
+    <table class="variants-table" id="variantsTable">
+        <thead>
+            <tr><th>LP</th><th>Nazwa parametru</th><th>Wariant 0</th><th>Wariant 1</th><th>Wariant 2</th><th>Wariant 3</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>3. Podsumowanie i Decyzja</h2>
+    <div class="summary-section">
+        <label>WYBRANA CENA [PLN NETTO]:</label>
+        <div id="selectedPrice" contenteditable="true" oninput="saveData()">0.00</div>
+    </div>
+
+    <div class="actions">
+        <button class="btn-save" onclick="saveData(true)">Zapisz dane do Oferty</button>
+        <button class="btn-jpg" onclick="downloadAsImage()">Pobierz jako JPG</button>
+    </div>
+</div>
+
+<script>
+    const rowDefinitions = [
+        { id: 1, name: "Jednorazowy czas sprzątania [h]", type: 'input' },
+        { id: 2, name: "Ilość dni w tygodniu", type: 'input' },
+        { id: 3, name: "Miesięczny czas sprzątania [h]", type: 'calc' },
+        { id: 4, name: "Prac. Netto/godzina [PLN]", type: 'input' },
+        { id: 5, name: "Prac. KP/godzina [PLN]", type: 'auto' },
+        { id: 6, name: "Prac. Netto Miesięcznie [PLN]", type: 'calc' },
+        { id: 7, name: "Prac. KP Miesięcznie [PLN]", type: 'calc' },
+        { id: 8, name: "Chemia Miesięcznie [PLN]", type: 'calc' },
+        { id: 9, name: "Am. Sprzętu Miesięcznie [PLN]", type: 'calc' },
+        { id: 10, name: "Suma Kosztów Miesięcznie [PLN]", type: 'calc' },
+        { id: 11, name: "Marża Procentowa [%]", type: 'input' },
+        { id: 12, name: "Marża PLN", type: 'calc' },
+        { id: 13, name: "Cena Dla Klienta Netto MC [PLN]", type: 'calc' }
+    ];
+
+    const salaryMap = { "22.50": 37.50, "23.81": 39.71, "25.00": 41.69, "30.00": 50.03, "35.00": 58.38, "40.00": 66.72 };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const dateInput = document.getElementById('calcDate');
+        if (!dateInput.value) dateInput.valueAsDate = new Date();
+        renderTable();
+        loadData();
+        document.getElementById('variantsTable').addEventListener('input', () => {
+            recalcVariants();
+            saveData();
+        });
+    });
+
+    function renderTable() {
+        const tbody = document.querySelector('#variantsTable tbody');
+        tbody.innerHTML = '';
+        rowDefinitions.forEach((row) => {
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-row', row.id);
+            tr.innerHTML = `<td>${row.id}.</td><td>${row.name}</td>`;
+            for (let i = 0; i < 4; i++) {
+                tr.innerHTML += `<td class="variant-col"><input type="number" step="0.01" data-variant="${i}" data-row-id="${row.id}"
+                ${row.type==='calc'?'readonly':''}></td>`; 
+            }
+            tbody.appendChild(tr);
+        });
+    }
+
+    function calculateTime() {
+        const getV = (id) => parseFloat(document.getElementById(id).value) || 0;
+        const days = parseFloat(document.querySelector('input[data-row-id="2"][data-variant="0"]').value) || 1;
+        
+        let mins = 0;
+        let vBase = (getV('officeArea')/100)*10, vF = getV('vacFreq');
+        if(vF > 0 && vF < days) vBase -= ((days - vF) * vBase) / days;
+        let wBase = getV('workstations')*2, wF = getV('workFreq');
+        if(wF > 0 && wF < days) wBase -= ((days - wF) * wBase) / days;
+        mins = vBase + wBase + getV('kitchens')*12 + getV('confRooms')*10 + getV('bathrooms')*10 + getV('showers')*10 + getV('dishwashers')*10 + (getV('hardFloors')/100)*20 + 10;
+        
+        let fM = getV('fridges')*20; 
+        if(days > 1) fM /= days;
+        mins += fM;
+        
+        if(getV('floors') > 1) mins += (getV('floors')-1)*10;
+        
+        const hrs = Math.round((mins/60)*100)/100;
+
+        document.getElementById('cleaningTimeResult').style.display = 'block';
+        document.getElementById('cleaningTimeResult').innerText = `Wynik: ${hrs} h . Wstawiono do wariantu 0.`;
+        document.querySelector('input[data-row-id="1"][data-variant="0"]').value = hrs;
+        recalcVariants();
+        saveData();
+    }
+
+    function recalcVariants() {
+        for (let i = 0; i < 4; i++) {
+            const g = (rid) => document.querySelector(`input[data-variant="${i}"][data-row-id="${rid}"]`);
+            const val = (rid) => { const el = g(rid); return el && el.value ? parseFloat(el.value) : 0; };
+            const set = (rid, v) => { const el = g(rid); if(el) el.value = v.toFixed(2); };
+            const isEmpty = (rid) => { const el = g(rid); return !el || el.value.trim() === ""; };
+
+            let st = val(1); 
+            let d = val(2);  
+            let mt = (st * d * 4.2);
+            set(3, mt);
+            
+            let r4 = g(4) ? g(4).value : "0";
+            let r4Val = parseFloat(r4);
+            // Próba dopasowania do mapy stawek, jeśli nie ma - wyliczanie dynamiczne
+            if(r4 && salaryMap[r4Val.toFixed(2)]) {
+                g(5).value = salaryMap[r4Val.toFixed(2)].toFixed(2);
+            } else if (r4Val > 0) {
+                // Fallback: mnożnik ok. 1.6676 (koszty pracodawcy + składowe)
+                g(5).value = (r4Val * 1.6676).toFixed(2);
+            }
+            
+            let n = val(4), kp = val(5);
+            set(6, mt*n); set(7, mt*kp); set(8, mt*0.5); set(9, mt*0.7);
+            let tc = val(7)+val(8)+val(9);
+            set(10, tc);
+            let mv = tc * (val(11)/100);
+            set(12, mv);
+            
+            const finalPrice = tc + mv;
+            const cell13Input = g(13);
+            if (cell13Input) {
+                const cell13 = cell13Input.parentElement;
+                if ([1, 2, 4, 11].some(rid => isEmpty(rid))) {
+                   cell13Input.style.display = 'none';
+                   if (!cell13.querySelector('.error-text')) {
+                      const span = document.createElement('span');
+                      span.className = 'error-text'; span.innerText = 'UZUPEŁNIJ DANE';
+                      cell13.appendChild(span);
+                   }
+                 } else {
+                     const span = cell13.querySelector('.error-text');
+                     if (span) span.remove();
+                     cell13Input.style.display = 'inline-block';
+                     set(13, finalPrice);
+                 }
+             }
+         }
+    }
+
+    function downloadAsImage() {
+        const container = document.getElementById('app-container');
+        const actions = document.querySelector('.actions');
+        const calcBtn = document.querySelector('.btn-calc');
+        actions.style.visibility = 'hidden';
+        calcBtn.style.visibility = 'hidden';
+        document.getElementById('selectedPrice').style.border = '2px solid #198754';
+
+        html2canvas(container, {
+            scale: 2, 
+            backgroundColor: "#f8f9fa",
+            onclone: (clonedDoc) => {
+                const originalInputs = container.querySelectorAll('input');
+                const clonedInputs = clonedDoc.querySelectorAll('input');
+                originalInputs.forEach((input, index) => {
+                    clonedInputs[index].value = input.value;
+                });
+                clonedDoc.getElementById('selectedPrice').innerText = document.getElementById('selectedPrice').innerText;
+            }
+        }).then(canvas => {
+            const link = document.createElement('a');
+            const name = document.getElementById('clientName').value || 'Wycena';
+            link.download = `${name}.jpg`;
+            link.href = canvas.toDataURL("image/jpeg", 0.9);
+            link.click();
+            actions.style.visibility = 'visible';
+            calcBtn.style.visibility = 'visible';
+        });
+    }
+
+    function saveData(showAlert = false) {
+        const data = {};
+        document.querySelectorAll('input').forEach(el => {
+            const key = el.id || `v${el.dataset.variant}_r${el.dataset.rowId}`;
+            data[key] = el.value;
+        });
+        data['selectedPrice'] = document.getElementById('selectedPrice').innerText;
+        localStorage.setItem('kalkulator_v3_1', JSON.stringify(data));
+        
+        if (window.parent && window.parent.forceRefreshAll) {
+            window.parent.forceRefreshAll();
+        }
+        if (showAlert) alert('Zapisano i zaktualizowano Ofertę.');
+    }
+
+   function loadData() {
+        const raw = localStorage.getItem('kalkulator_v3_1');
+        if (!raw) return;
+        try {
+            const data = JSON.parse(raw);
+            for (const [key, val] of Object.entries(data)) {
+                if (key === 'selectedPrice') {
+                    document.getElementById('selectedPrice').innerText = val;
+                    continue;
+                }
+                const el = document.getElementById(key) || 
+                           document.querySelector(`input[data-variant="${key.split('_r')[0].substring(1)}"][data-row-id="${key.split('_r')[1]}"]`);
+                if (el) el.value = val;
+            }
+            recalcVariants();
+        } catch (e) { console.error(e); }
+    }
+
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'kalkulator_v3_1') loadData();
+    });
+</script>
+</body>
+</html>

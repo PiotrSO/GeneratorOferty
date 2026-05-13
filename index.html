@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Serwis - Generator Ofert</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #27ae60; /* Nawiązanie do przycisków akcji z Twoich plików */
+            --accent-hover: #219653;
+            --text-light: #ecf0f1;
+        }
+        
+        body, html {
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4; 
+            display: flex; 
+            flex-direction: column;
+            overflow: hidden; /* Zapobiega podwójnym paskom przewijania */
+        }
+
+        .topbar {
+            background-color: var(--primary); 
+            color: var(--text-light);
+            padding: 12px 25px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3); 
+            z-index: 100;
+        }
+
+        .logo { 
+            font-size: 1.3rem; 
+            font-weight: 800; 
+            color: #f1c40f; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        .nav-tabs { 
+            display: flex; 
+            gap: 12px; 
+        }
+
+        .tab-btn {
+            background-color: var(--secondary); 
+            color: var(--text-light);
+            border: 1px solid #455d7a; 
+            padding: 10px 22px; 
+            border-radius: 6px; 
+            cursor: pointer;
+            font-size: 0.95rem; 
+            font-weight: 600; 
+            transition: all 0.2s ease-in-out;
+        }
+
+        .tab-btn:hover { 
+            background-color: #3b536b; 
+        }
+
+        .tab-btn.active { 
+            background-color: var(--accent); 
+            color: white; 
+            border-color: var(--accent-hover);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+        }
+        
+        .content-wrapper { 
+            flex: 1; 
+            display: flex; 
+            overflow: hidden; 
+        }
+
+        iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+            background: #f8f9fa; 
+        }
+
+        @media print {
+            .topbar { display: none !important; }
+            .content-wrapper { 
+                position: absolute; 
+                left: 0; top: 0; right: 0; bottom: 0; 
+                overflow: visible !important; 
+                display: block !important;
+                height: 100% !important;
+            }
+            iframe { 
+                height: 100% !important; 
+                width: 100% !important; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <div class="logo">System Serwis | Generator</div>
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="loadModule('CenaZm1102.html', this)">1. Kalkulator Ceny</button>
+            <button class="tab-btn" onclick="loadModule('ZakresyZm1102.html', this)">2. Zakres Prac</button>
+            <button class="tab-btn" onclick="loadModule('OfertaZm1102.html', this)">3. Gotowa Oferta</button>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <iframe id="mainFrame" src="CenaZm1102.html"></iframe>
+    </div>
+
+    <script>
+        // Funkcja przełączająca zakładki
+        function loadModule(pageUrl, btn) {
+            // Zmiana stylu aktywnego przycisku
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Wczytanie odpowiedniego pliku do iframe
+            document.getElementById('mainFrame').src = pageUrl;
+        }
+
+        // Globalna funkcja nasłuchująca sygnałów z Twoich podstron
+        window.forceRefreshAll = function() {
+            console.log("Dashboard: Zarejestrowano zmianę danych. Synchronizuję widoki...");
+            const frameWindow = document.getElementById('mainFrame').contentWindow;
+            
+            if (frameWindow && typeof frameWindow.syncData === 'function') {
+                frameWindow.syncData();
+            }
+        };
+
+        window.addEventListener('message', (e) => {
+            const frame = document.getElementById('mainFrame');
+            if (e.data && e.data.type === 'PREPARE_PRINT') {
+                if(frame && frame.contentWindow) {
+                    const doc = frame.contentWindow.document;
+                    const height = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+                    frame.style.height = height + 'px';
+                }
+            } else if (e.data && e.data.type === 'RESTORE_PRINT') {
+                if(frame) frame.style.height = '100%';
+            }
+        });
+    </script>
+
+</body>
+</html>

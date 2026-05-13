@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Serwis - Dashboard Operacyjny</title>
+    <style>
+        :root {
+            --primary-red: #e30613;
+            --primary-blue: #00509d;
+            --sidebar-bg: #2c3e50;
+            --sidebar-hover: #34495e;
+            --nav-width: 280px;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background-color: #f0f2f5;
+        }
+
+        /* Sidebar - Panel boczny */
+        .sidebar {
+            width: var(--nav-width);
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            background-color: #1a252f;
+            text-align: center;
+            border-bottom: 3px solid var(--primary-red);
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: white;
+        }
+
+        .logo-subtext {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .nav-menu {
+            flex-grow: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 18px 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            border-left: 6px solid transparent;
+            font-size: 0.95rem;
+            color: #bdc3c7;
+        }
+
+        .nav-item:hover {
+            background-color: var(--sidebar-hover);
+            color: white;
+        }
+
+        .nav-item.active {
+            background-color: var(--sidebar-hover);
+            border-left-color: var(--primary-red);
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Kontener Główny */
+        .main-container {
+            margin-left: var(--nav-width);
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Ramki dla aplikacji */
+        .app-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none; /* Domyślnie ukryte */
+        }
+
+        .app-frame.active {
+            display: block;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: var(--nav-width);
+            background: white;
+            padding: 8px 20px;
+            font-size: 11px;
+            color: #7f8c8d;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-text">SYSTEM SERWIS</div>
+        <div class="logo-subtext">Panel Ofertowania V3.2</div>
+    </div>
+    
+    <div class="nav-menu">
+        <div class="nav-item active" onclick="switchApp(0, this)">
+            <span>🧮 1. Kalkulator Ceny</span>
+        </div>
+        <div class="nav-item" onclick="switchApp(1, this)">
+            <span>📋 2. Kreator Zakresów</span>
+        </div>
+        <div class="nav-item" onclick="switchApp(2, this)">
+            <span>📄 3. Edytor Oferty Finalnej</span>
+        </div>
+    </div>
+
+    <div style="padding: 20px; font-size: 10px; opacity: 0.5;">
+        © 2026 System Serwis Sp. z o.o.
+    </div>
+</div>
+
+<div class="main-container">
+    <iframe id="app-0" class="app-frame active" src="CenaZm1102.html"></iframe>
+
+    <iframe id="app-1" class="app-frame" src="ZakresyZm1102.html"></iframe>
+
+    <iframe id="app-2" class="app-frame" src="OfertaZm1102.html"></iframe>
+
+    <div class="status-bar">
+        <span>Tryb: Administrator</span>
+        <span>Zasoby: Referencje | Dane Lokalne</span>
+    </div>
+</div>
+
+<script>
+    function switchApp(index, element) {
+        const frames = document.querySelectorAll('.app-frame');
+        frames.forEach(f => f.classList.remove('active'));
+        
+        const items = document.querySelectorAll('.nav-item');
+        items.forEach(i => i.classList.remove('active'));
+        
+        document.getElementById('app-' + index).classList.add('active');
+        element.classList.add('active');
+    }
+
+    // --- NOWA FUNKCJA DO WKLEJENIA ---
+    // Ta funkcja wymusza przeładowanie danych w Cenie i Ofercie
+    window.forceRefreshAll = function() {
+        console.log("Wymuszam odświeżenie danych we wszystkich oknach...");
+        
+        // Odśwież Kalkulator Ceny (app-0)
+        const frameCena = document.getElementById('app-0');
+        if (frameCena && frameCena.contentWindow && frameCena.contentWindow.loadData) {
+            frameCena.contentWindow.loadData();
+        }
+
+        // Odśwież Ofertę (app-2)
+        const frameOferta = document.getElementById('app-2');
+        if (frameOferta && frameOferta.contentWindow && frameOferta.contentWindow.syncData) {
+            frameOferta.contentWindow.syncData();
+        }
+    };
+    // ---------------------------------
+</script>
+</body>
+</html>
