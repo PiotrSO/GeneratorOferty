@@ -815,16 +815,13 @@
 
             logDiag("Inicjalizacja wczytywania...");
             const saved = localStorage.getItem('oferta_images_state');
-            let fs, pathMod;
             try {
-                if (typeof require !== 'undefined') {
-                    fs = require('fs');
-                    pathMod = require('path');
-                    logDiag("✅ Node.js wykryty");
+                if (window.electronAPI) {
+                    logDiag("✅ Electron API wykryte");
                 } else {
-                    logDiag("❌ Brak Node.js (tryb przeglądarki)");
+                    logDiag("❌ Brak Electron API");
                 }
-            } catch (e) { logDiag("❌ Błąd require: " + e.message); }
+            } catch (e) { logDiag("❌ Błąd: " + e.message); }
 
             const ids = ['ref1', 'ref2', 'ref3', 'ref4', 'ref5', 'ref6', 'mainLogoCover', 'logoRzf', 'bgCover'];
             let state = {};
@@ -894,8 +891,7 @@
         };
 
         function saveAsPDF() {
-            if (typeof require !== 'undefined') {
-                const { ipcRenderer } = require('electron');
+            if (window.electronAPI) {
                 let clientName = document.getElementById('iClient').value;
                 if (!clientName || clientName === '[NAZWA KLIENTA]') clientName = 'Oferta';
 
@@ -909,10 +905,10 @@
                 const workspaceHTML = document.querySelector('.workspace').outerHTML;
 
                 setTimeout(() => {
-                    ipcRenderer.send('save-pdf', `${clientName}.pdf`, workspaceHTML);
+                    window.electronAPI.savePDF(`${clientName}.pdf`, workspaceHTML);
                 }, 100);
 
-                ipcRenderer.once('pdf-saved', () => {
+                window.electronAPI.onPDFSaved(() => {
                     btn.innerText = oldText;
                     btn.style.opacity = '1';
                     btn.style.pointerEvents = 'auto';
@@ -924,9 +920,8 @@
     </script>
 
     <script>
-        if (typeof require !== 'undefined') {
-            const { ipcRenderer } = require('electron');
-            ipcRenderer.on('load-workspace', (event, html) => {
+        if (window.electronAPI) {
+            window.electronAPI.onLoadWorkspace((html) => {
                 const ws = document.querySelector('.workspace');
                 if (ws) ws.outerHTML = html;
             });
@@ -1007,13 +1002,13 @@
     <div class="workspace">
 
         <div class="page">
-            <img id="bgCover" src="local-ss://tloPierwszejStrony.jpg" class="bg-img" alt="Tło">
+            <img id="bgCover" src="local-ss://assets/tloPierwszejStrony.jpg" class="bg-img" alt="Tło">
             <div class="page-content-cover">
                 <div class="header-url">www.system-serwis.eu</div>
                 <div style="text-align: center;">
-                    <img id="mainLogoCover" src="local-ss://Logo_SYSTEM_SERWIS_wersja_podstawowa_RGB.png"
+                    <img id="mainLogoCover" src="local-ss://assets/Logo_SYSTEM_SERWIS_wersja_podstawowa_RGB.png"
                         class="logo-cover" onerror="this.style.display='none'">
-                    <img id="logoRzf" src="local-ss://rzf.png" class="logo-rzetelna"
+                    <img id="logoRzf" src="local-ss://assets/rzf.png" class="logo-rzetelna"
                         onerror="this.style.display='none'">
                     <div id="oTitleCover"
                         style="font-size: 24pt; color: var(--primary-blue); font-weight: bold; line-height: 1.5; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(255,255,255,0.9);">
@@ -1181,9 +1176,9 @@
                 </table>
                 <div class="scans-wrapper-flex">
                     <div class="scans-row">
-                        <img id="ref1" src="local-ss://ref1.png" class="scan-item-half" alt="Referencja Ceraco"
+                        <img id="ref1" src="local-ss://assets/ref1.png" class="scan-item-half" alt="Referencja Ceraco"
                             onerror="this.style.display='none'">
-                        <img id="ref2" src="local-ss://ref2.jpg" class="scan-item-half" alt="Referencja MediaMarkt"
+                        <img id="ref2" src="local-ss://assets/ref2.jpg" class="scan-item-half" alt="Referencja MediaMarkt"
                             onerror="this.style.display='none'">
                     </div>
                 </div>
@@ -1198,7 +1193,7 @@
 
         <div class="page">
             <div class="page-header">
-                <img src="local-ss://Logo_SYSTEM_SERWIS_wersja_podstawowa_RGB.png" class="logo-header">
+                <img src="local-ss://assets/Logo_SYSTEM_SERWIS_wersja_podstawowa_RGB.png" class="logo-header">
                 <div class="ph-text">
                     <div class="ph-title ph-title-dynamic">WSTĘPNA OFERTA<br>NA USŁUGI PORZĄDKOWE</div>5/5
                 </div>
@@ -1206,13 +1201,13 @@
             <div class="page-content">
                 <h3>POZOSTAŁE LISTY REFERENCYJNE</h3>
                 <div class="scans-grid">
-                    <img id="ref3" src="local-ss://ref3.jpg" class="scan-item-quarter" alt="Nieruchomości"
+                    <img id="ref3" src="local-ss://assets/ref3.jpg" class="scan-item-quarter" alt="Nieruchomości"
                         onerror="this.style.display='none'">
-                    <img id="ref4" src="local-ss://ref4.jpg" class="scan-item-quarter" alt="Aegon"
+                    <img id="ref4" src="local-ss://assets/ref4.jpg" class="scan-item-quarter" alt="Aegon"
                         onerror="this.style.display='none'">
-                    <img id="ref5" src="local-ss://ref5.png" class="scan-item-quarter" alt="Worldline"
+                    <img id="ref5" src="local-ss://assets/ref5.png" class="scan-item-quarter" alt="Worldline"
                         onerror="this.style.display='none'">
-                    <img id="ref6" src="local-ss://ref6.png" class="scan-item-quarter" alt="Deloitte"
+                    <img id="ref6" src="local-ss://assets/ref6.png" class="scan-item-quarter" alt="Deloitte"
                         onerror="this.style.display='none'">
                 </div>
             </div>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kreator Zakresów - Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --bg-color: #f8fafc;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .toolbar {
+            position: sticky;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 15px 25px;
+            width: 100%;
+            max-width: 1200px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--white);
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        
+        button:hover { transform: translateY(-1px); filter: brightness(1.1); }
+
+        .btn-add { background-color: var(--primary); }
+        .btn-save { background-color: var(--success); }
+        .btn-load { background-color: #64748b; position: relative; }
+        .btn-jpg { background-color: #f59e0b; }
+        .btn-reset { background-color: #94a3b8; }
+
+        #file-loader {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; cursor: pointer;
+        }
+
+        .main-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            width: 100%;
+            max-width: 1600px;
+            align-items: flex-start;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-row {
+            background: #fdfdfd;
+            border: 1px solid var(--border);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            transition: border-color 0.2s;
+        }
+
+        .editor-row:hover { border-color: var(--primary); }
+
+        .row-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .input-name {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid #fee2e2;
+            padding: 5px 12px;
+            font-size: 0.75rem;
+        }
+        .btn-delete:hover { background-color: var(--danger); color: white; border-color: var(--danger); }
+
+        .options-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .opt-group label {
+            display: block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        select, .custom-val-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            box-sizing: border-box;
+            background: var(--bg-color);
+        }
+
+        .custom-val-input {
+            margin-top: 8px;
+            background-color: #eff6ff;
+            border-color: #bfdbfe;
+            display: none;
+        }
+
+        .preview-container {
+            position: sticky;
+            top: 100px;
+        }
+
+        #canvas-target {
+            background: #ffffff;
+            padding: 40px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            min-height: 800px;
+            color: #000;
+            border-radius: 4px; /* Document look */
+        }
+
+        .offer-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        table.offer-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        table.offer-table th, table.offer-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+        }
+
+        table.offer-table th { background: #f8fafc; }
+        table.offer-table td.text-left { text-align: left; }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <button class="btn-add" onclick="addTask()"><span>➕</span> Dodaj czynność</button>
+        <button class="btn-save" onclick="manualSync()"><span>💾</span> Zapisz do Oferty</button>
+        <button class="btn-load">
+            <span>📂</span> Wczytaj kopię
+            <input type="file" id="file-loader" accept=".json" onchange="loadData(this)">
+        </button>
+        <button class="btn-reset" onclick="resetToDefault()"><span>🔄</span> Resetuj</button>
+        <button class="btn-jpg" onclick="generateJPG()"><span>📷</span> Pobierz JPG</button>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="card">
+            <div class="card-title">Edytor Czynności</div>
+            <div id="editor-list"></div>
+            <button class="btn-add" style="width:100%; margin-top:20px; justify-content: center;" onclick="addTask()">Dodaj kolejną pozycję</button>
+        </div>
+
+        <div class="preview-container">
+            <div id="canvas-target">
+                <div class="offer-title">Wykaz czynności / prac porządkowych</div>
+                <table class="offer-table">
+                    <thead><tr id="preview-header-row"></tr></thead>
+                    <tbody id="preview-body"></tbody>
+                </table>
+                <div id="empty-msg" style="display:none; text-align:center; padding:40px; color:#94a3b8; font-style:italic;">Brak zaznaczonych czynności.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultFullData = [
+            { "id": 1, "name": "Opróżnienie koszy na śmieci z wymianą worków", "biuro": "1 raz dziennie", "biuroCus": "", "kuchnia": "1 raz dziennie", "kuchniaCus": "", "wc": "1 raz dziennie", "wcCus": "" },
+            { "id": 2, "name": "Wyniesienie śmieci do śmietnika zewnętrznego", "biuro": "1 raz dziennie", "biuroCus": "", "kuchnia": "1 raz dziennie", "kuchniaCus": "", "wc": "1 raz dziennie", "wcCus": "" },
+            { "id": 3, "name": "Mycie koszy na śmieci", "biuro": "other", "biuroCus": "1 raz w miesiącu", "kuchnia": "other", "kuchniaCus": "1 raz w miesiącu", "wc": "other", "wcCus": "1 raz w miesiącu" },
+            { "id": 4, "name": "Przecieranie na wilgotno parapetów", "biuro": "3 razy w tygodniu", "biuroCus": "", "kuchnia": "3 razy dziennie", "kuchniaCus": "", "wc": "0", "wcCus": "" },
+            { "id": 5, "name": "Przecieranie na wilgotno mebli", "biuro": "2 razy w tygodniu", "biuroCus": "", "kuchnia": "0", "kuchniaCus": "", "wc": "0", "wcCus": "" },
+            { "id": 6, "name": "Przecieranie klamek i włączników", "biuro": "1 raz dziennie", "biuroCus": "", "kuchnia": "1 raz dziennie", "kuchniaCus": "", "wc": "1 raz dziennie", "wcCus": "" },
+            { "id": 7, "name": "Odkurzanie wykładzin", "biuro": "3 razy dziennie", "biuroCus": "", "kuchnia": "0", "kuchniaCus": "", "wc": "0", "wcCus": "" },
+            { "id": 8, "name": "Mycie podłóg twardych", "biuro": "1 raz dziennie", "biuroCus": "", "kuchnia": "1 raz dziennie", "kuchniaCus": "", "wc": "1 raz dziennie", "wcCus": "" },
+            { "id": 9, "name": "Obsługa zmywarki", "biuro": "0", "biuroCus": "", "kuchnia": "1 raz dziennie", "kuchniaCus": "", "wc": "0", "wcCus": "" },
+            { "id": 10, "name": "Mycie sanitariatów", "biuro": "0", "biuroCus": "", "kuchnia": "0", "kuchniaCus": "", "wc": "1 raz dziennie", "wcCus": "" }
+        ];
+
+        let appData = JSON.parse(JSON.stringify(defaultFullData));
+
+        const optionsList = [
+            {v: "0", t: "0 (brak)"},
+            {v: "1 raz dziennie", t: "1 raz dziennie"},
+            {v: "2 razy dziennie", t: "2 razy dziennie"},
+            {v: "1 raz w tygodniu", t: "1 raz w tygodniu"},
+            {v: "2 razy w tygodniu", t: "2 razy w tygodniu"},
+            {v: "3 razy w tygodniu", t: "3 razy w tygodniu"},
+            {v: "1 raz w miesiącu", t: "1 raz w miesiącu"},
+            {v: "other", t: "Inne..."}
+        ];
+
+        function init() {
+            const savedData = localStorage.getItem('current_tasks_data');
+            if (savedData) {
+                try { appData = JSON.parse(savedData); } catch(e) {}
+            }
+            renderAll();
+        }
+
+        function renderAll() { renderEditor(); renderPreview(); }
+
+        function renderEditor() {
+            const container = document.getElementById('editor-list');
+            container.innerHTML = '';
+            appData.forEach((task, idx) => {
+                const row = document.createElement('div');
+                row.className = 'editor-row';
+                row.innerHTML = `
+                    <div class="row-top">
+                        <input type="text" class="input-name" value="${task.name}" oninput="updateName(${idx}, this.value)">
+                        <button class="btn-delete" onclick="removeTask(${idx})">Usuń</button>
+                    </div>
+                    <div class="options-wrapper">
+                        ${renderOpt(idx, 'biuro', 'Biuro', task.biuro, task.biuroCus)}
+                        ${renderOpt(idx, 'kuchnia', 'Kuchnia', task.kuchnia, task.kuchniaCus)}
+                        ${renderOpt(idx, 'wc', 'Toalety', task.wc, task.wcCus)}
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function renderOpt(idx, field, label, val, cus) {
+            const optionsHTML = optionsList.map(opt => `<option value="${opt.v}" ${val === opt.v ? 'selected' : ''}>${opt.t}</option>`).join('');
+            const showCus = val === 'other' ? 'block' : 'none';
+            return `<div class="opt-group"><label>${label}</label><select onchange="updateVal(${idx}, '${field}', this.value)">${optionsHTML}</select>
+                    <input type="text" class="custom-val-input" style="display:${showCus}" value="${cus}" oninput="updateCus(${idx}, '${field}Cus', this.value)"></div>`;
+        }
+
+        function renderPreview() {
+            const theadRow = document.getElementById('preview-header-row');
+            const tbody = document.getElementById('preview-body');
+            tbody.innerHTML = ''; theadRow.innerHTML = ''; 
+            let hasBiuro = false, hasKuchnia = false, hasWC = false;
+            appData.forEach(t => { if (t.biuro !== '0') hasBiuro = true; if (t.kuchnia !== '0') hasKuchnia = true; if (t.wc !== '0') hasWC = true; });
+            theadRow.innerHTML += `<th>Lp.</th><th>Czynność</th>`;
+            if (hasBiuro) theadRow.innerHTML += `<th>Biuro</th>`;
+            if (hasKuchnia) theadRow.innerHTML += `<th>Kuchnia</th>`;
+            if (hasWC) theadRow.innerHTML += `<th>Toalety</th>`;
+            let lp = 1, visible = 0;
+            appData.forEach(task => {
+                if (task.biuro !== '0' || task.kuchnia !== '0' || task.wc !== '0') {
+                    visible++;
+                    const tr = document.createElement('tr');
+                    let rowHtml = `<td>${lp}.</td><td class="text-left">${task.name}</td>`;
+                    if (hasBiuro) rowHtml += `<td>${getDisplay(task.biuro, task.biuroCus)}</td>`;
+                    if (hasKuchnia) rowHtml += `<td>${getDisplay(task.kuchnia, task.kuchniaCus)}</td>`;
+                    if (hasWC) rowHtml += `<td>${getDisplay(task.wc, task.wcCus)}</td>`;
+                    tr.innerHTML = rowHtml; tbody.appendChild(tr); lp++;
+                }
+            });
+            document.getElementById('empty-msg').style.display = visible === 0 ? 'block' : 'none';
+        }
+
+        function getDisplay(val, cus) { return val === 'other' ? (cus || 'Inne') : val; }
+
+        function syncToApp() { localStorage.setItem('current_tasks_data', JSON.stringify(appData)); if (window.parent && window.parent.forceRefreshAll) window.parent.forceRefreshAll(); }
+        function manualSync() { syncToApp(); alert("Zsynchronizowano z ofertą."); }
+        function resetToDefault() { if(confirm("Reset do domyślnych?")) { appData = JSON.parse(JSON.stringify(defaultFullData)); renderAll(); syncToApp(); } }
+        function updateName(idx, val) { appData[idx].name = val; renderPreview(); syncToApp(); }
+        function updateVal(idx, field, val) { appData[idx][field] = val; renderAll(); syncToApp(); }
+        function updateCus(idx, field, val) { appData[idx][field] = val; renderPreview(); syncToApp(); }
+        function addTask() { appData.push({ id: Date.now(), name: "Nowa czynność", biuro: "0", biuroCus: "", kuchnia: "0", kuchniaCus: "", wc: "0", wcCus: "" }); renderAll(); syncToApp(); }
+        function removeTask(idx) { appData.splice(idx, 1); renderAll(); syncToApp(); }
+
+        function loadData(input) {
+            const file = input.files[0]; if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) { try { appData = JSON.parse(e.target.result); renderAll(); syncToApp(); } catch(err) {} };
+            reader.readAsText(file); input.value = '';
+        }
+
+        function generateJPG() {
+            html2canvas(document.getElementById("canvas-target"), { scale: 2 }).then(canvas => {
+                const link = document.createElement('a'); link.download = 'Zakres.jpg'; link.href = canvas.toDataURL("image/jpeg", 0.9); link.click();
+            });
+        }
+        init();
+    </script>
+</body>
+</html>

@@ -7,11 +7,12 @@ function createWindow() {
     width: 1280,
     height: 800,
     title: "System Serwis - Generator Ofert",
-    icon: path.join(__dirname, 'Logo_SYSTEM_SERWIS_wersja_podstawowa_RGB.png'), 
+    icon: path.join(__dirname, 'assets', 'Logo_SYSTEM_SERWIS_wersja_podstawowa_RGB.png'), 
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      nodeIntegrationInSubFrames: true
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegrationInSubFrames: false
     }
   });
 
@@ -51,17 +52,18 @@ ipcMain.on('save-pdf', async (event, defaultName, htmlContent) => {
     }
 
     const offscreenWin = new BrowserWindow({
-      show: true,
+      show: false,
       transparent: true,
       frame: false,
       skipTaskbar: true,
       width: 1280,
       height: 800,
       webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
+        nodeIntegration: false,
+        contextIsolation: true,
+        preload: path.join(__dirname, 'preload.js'),
         backgroundThrottling: false,
-        nodeIntegrationInSubFrames: true
+        nodeIntegrationInSubFrames: false
       }
     });
 
@@ -105,7 +107,7 @@ ipcMain.on('save-pdf', async (event, defaultName, htmlContent) => {
       }, 1500); 
     });
 
-    offscreenWin.loadFile('OfertaZm1102.html');
+    offscreenWin.loadFile('src/offer.html');
 
   } catch (error) {
     console.error('Błąd dialogu:', error);
