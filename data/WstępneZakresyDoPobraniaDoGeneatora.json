@@ -41,7 +41,7 @@
   },
   {
     "id": 1769155274412,
-    "name": "Przecieranie na wilgotno dostępnych (pustych) powierzchni półek mebli",
+    "name": "Przecieranie na wilgotno dostępnych (pustych) powierzchni blatów biurek oraz półek mebli",
     "biuro": "2 razy w tygodniu",
     "biuroCus": "",
     "kuchnia": "0",
@@ -257,6 +257,16 @@
     "kuchnia": "0",
     "kuchniaCus": "",
     "wc": "1 raz dziennie",
+    "wcCus": ""
+  },
+  {
+    "id": 1769155274434,
+    "name": "Przecieranie na sucho monitorów, klawiatur, drukarek itp.",
+    "biuro": "1 raz dziennie",
+    "biuroCus": "",
+    "kuchnia": "0",
+    "kuchniaCus": "",
+    "wc": "0",
     "wcCus": ""
   }
 ]
