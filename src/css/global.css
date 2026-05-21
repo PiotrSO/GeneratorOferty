@@ -1,0 +1,17 @@
+/* src/css/global.css */
+:root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --bg-color: #f8fafc;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --white: #ffffff;
+    --border: #e2e8f0;
+}
+
+body {
+    font-family: 'Inter', 'Arial', sans-serif;
+    margin: 0;
+}

@@ -1,0 +1,534 @@
+:root {
+            --primary-red: rgb(228, 35, 19);
+            --primary-blue: rgb(44, 85, 162);
+            --text-dark: #222;
+            --page-width: 210mm;
+            --page-height: 297mm;
+            --footer-height: 80px;
+            --header-height: 70px;
+            --gap-above-footer: 10mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #555;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: row;
+        }
+
+        /* --- PANEL BOCZNY --- */
+        .sidebar {
+            width: 360px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            height: calc(100vh - 40px);
+            position: fixed;
+            overflow-y: auto;
+            border-radius: 5px;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+        }
+
+        .sidebar h2 {
+            font-size: 16px;
+            border-bottom: 1px solid #7f8c8d;
+            padding-bottom: 10px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #f1c40f;
+        }
+
+        .sidebar h3 {
+            font-size: 14px;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #bdc3c7;
+            border-bottom: 1px dashed #7f8c8d;
+            padding-bottom: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #bdc3c7;
+            margin-bottom: 2px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 6px;
+            border: none;
+            border-radius: 3px;
+            font-family: inherit;
+            background: #ecf0f1;
+            font-size: 12px;
+        }
+
+        .btn-print {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .btn-print:hover {
+            background: #b01f15;
+        }
+
+        .img-uploader {
+            background: #34495e;
+            padding: 5px;
+            border: 1px dashed #7f8c8d;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+
+        .img-uploader span {
+            font-size: 10px;
+            display: block;
+            margin-bottom: 2px;
+            color: #ecf0f1;
+        }
+
+        .file-input {
+            width: 100%;
+            font-size: 9px;
+            color: #bdc3c7;
+        }
+
+        /* --- OBSZAR ROBOCZY --- */
+        .workspace {
+            margin-left: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            padding-bottom: 50px;
+        }
+
+        /* --- STRONA A4 --- */
+        .page {
+            width: var(--page-width);
+            height: var(--page-height);
+            background: white;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            page-break-after: always;
+        }
+
+        /* --- TŁO STRONY 1 --- */
+        .bg-img {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            max-height: 75%;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.8;
+            -webkit-mask-image: linear-gradient(to top, black 30%, transparent 100%);
+            mask-image: linear-gradient(to top, black 30%, transparent 100%);
+        }
+
+        /* --- ELEMENTY STRONY 1 --- */
+        .page-content-cover {
+            position: absolute;
+            top: 15mm;
+            left: 20mm;
+            right: 20mm;
+            bottom: var(--footer-height);
+            z-index: 10;
+            background: transparent;
+        }
+
+        /* --- STOPKA --- */
+        .page-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--footer-height);
+            background-color: var(--primary-blue);
+            color: white;
+            font-size: 7.5pt;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20mm;
+            line-height: 1.3;
+            z-index: 100;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* --- NAGŁÓWEK --- */
+        .page-header {
+            position: absolute;
+            top: 15mm;
+            left: 20mm;
+            right: 20mm;
+            height: var(--header-height);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 3px solid var(--primary-red);
+            padding-bottom: 8px;
+            z-index: 10;
+        }
+
+        .ph-text {
+            text-align: right;
+            font-size: 12px;
+            color: #444;
+            line-height: 1.3;
+        }
+
+        .ph-title {
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            color: #000;
+        }
+
+        /* --- GŁÓWNY OBSZAR TREŚCI --- */
+        .page-content {
+            position: absolute;
+            top: calc(15mm + var(--header-height) + 20px);
+            left: 20mm;
+            right: 20mm;
+            bottom: calc(var(--footer-height) + var(--gap-above-footer));
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- UKŁAD SKANÓW --- */
+        .scans-wrapper-flex {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            min-height: 0;
+            margin-top: 10px;
+        }
+
+        .scans-row {
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .scan-item-half {
+            width: 49%;
+            height: 100%;
+            object-fit: contain;
+            object-position: bottom center;
+            background-color: white;
+        }
+
+        .scans-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 15px;
+            min-height: 0;
+        }
+
+        .scan-item-quarter {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            background-color: white;
+        }
+
+        /* --- POZOSTAŁE STYLE --- */
+        .logo-cover {
+            width: 380px;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 30px auto;
+        }
+
+        .logo-rzetelna {
+            width: 180px;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 50px auto;
+        }
+
+        .logo-header {
+            height: 55px;
+            width: auto;
+            display: block;
+        }
+
+        .header-url {
+            text-align: right;
+            font-size: 15pt;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 60px;
+        }
+
+        p {
+            margin: 5px 0;
+            font-size: 10pt;
+            line-height: 1.4;
+        }
+
+        .intro-text {
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+
+        .offer-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 10pt;
+            flex-shrink: 0;
+        }
+
+        .offer-table th {
+            background: #f0f0f0;
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .offer-table th.center-header {
+            text-align: center;
+        }
+
+        .offer-table td {
+            border: 1px solid #aaa;
+            padding: 10px;
+            vertical-align: top;
+        }
+
+        .price-box {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14pt;
+            white-space: nowrap;
+            vertical-align: middle !important;
+        }
+
+        .ref-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+            margin-top: 10px;
+            flex-shrink: 0;
+        }
+
+        .ref-table th,
+        .ref-table td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .ref-table th {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .services-list {
+            font-size: 9pt;
+        }
+
+        /* Styl dla tabeli zadań (dynamicznej) */
+        .tasks-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8pt;
+        }
+
+        .tasks-table th {
+            background: #eee;
+            border: 1px solid #888;
+            padding: 4px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .tasks-table td {
+            border: 1px solid #888;
+            padding: 3px 5px;
+            vertical-align: middle;
+        }
+
+        .col-id {
+            width: 30px;
+            text-align: center;
+        }
+
+        .col-freq {
+            text-align: center;
+            width: 80px;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .dynamic {
+            color: #000;
+            font-weight: bold;
+            background-color: rgba(255, 255, 0, 0.1);
+            border-bottom: 1px dashed #999;
+        }
+
+        [contenteditable]:hover {
+            outline: 1px dashed var(--primary-blue);
+            background: rgba(0, 86, 179, 0.05);
+            cursor: text;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            body {
+                background: white;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block;
+            }
+
+            .sidebar {
+                display: none !important;
+            }
+
+            .workspace {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                display: block;
+                border: none !important;
+                background: transparent !important;
+            }
+
+            /* Fix dla znikających obrazków przy eksporcie do PDF (silnik Chromium często kolapsuje min-height we flexboxach przy obcinaniu paginacji) -> Wymuszamy układ blokowy (blok-z-opływaniem), który nie upada w @media print */
+            .scans-wrapper-flex {
+                display: block !important;
+                height: 420px !important;
+            }
+
+            .scans-row {
+                display: block !important;
+                height: 420px !important;
+            }
+
+            .scan-item-half {
+                display: block !important;
+                float: left !important;
+                width: 48% !important;
+                height: 400px !important;
+                margin-right: 2% !important;
+                page-break-inside: avoid !important;
+            }
+
+            .scans-grid {
+                display: block !important;
+                height: 650px !important;
+            }
+
+            .scan-item-quarter {
+                display: block !important;
+                float: left !important;
+                width: 47% !important;
+                height: 300px !important;
+                margin-right: 2% !important;
+                margin-bottom: 2% !important;
+                page-break-inside: avoid !important;
+            }
+
+            .page {
+                margin: 0;
+                box-shadow: none;
+                width: 210mm;
+                height: 296mm !important;
+                /* 1mm mniej by ominąć phantom pixel wypychający ostatnią stronę */
+                page-break-after: always;
+                border: none;
+                border-radius: 0;
+                overflow: hidden;
+                box-sizing: border-box;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                display: block;
+            }
+
+            .page:last-child,
+            .page:last-of-type {
+                page-break-after: auto !important;
+            }
+
+            .page-content {
+                display: flex;
+                height: 100%;
+            }
+
+            .dynamic {
+                background-color: transparent;
+                border-bottom: none;
+            }
+
+            [contenteditable]:hover {
+                outline: none;
+                background: none;
+            }
+
+            .error {
+                display: none !important;
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(228, 35, 19, 0.5);
+            }
+
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 4px 25px rgba(228, 35, 19, 0.8);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(228, 35, 19, 0.5);
+            }
+        }
