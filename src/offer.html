@@ -692,7 +692,9 @@
                     const data = JSON.parse(e.target.result);
                     if (Array.isArray(data)) {
                         tasksData = data; // Nadpisz dane
+                        localStorage.setItem('current_tasks_data', JSON.stringify(data)); // Zapisz na stałe
                         renderTasksTable(); // Odśwież tabelę
+                        if (window.parent && window.parent.forceRefreshAll) { window.parent.forceRefreshAll(); }
                         alert("Zakres prac wczytany pomyślnie!");
                     } else {
                         alert("Nieprawidłowy format pliku JSON.");

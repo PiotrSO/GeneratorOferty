@@ -273,7 +273,16 @@
         function init() {
             const savedData = localStorage.getItem('current_tasks_data');
             if (savedData) {
-                try { appData = JSON.parse(savedData); } catch(e) {}
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    if (parsedData.length < 27) {
+                        syncToApp();
+                    } else {
+                        appData = parsedData;
+                    }
+                } catch(e) {}
+            } else {
+                syncToApp();
             }
             renderAll();
         }
