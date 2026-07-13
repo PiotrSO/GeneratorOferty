@@ -199,3 +199,29 @@
 
         table.offer-table th { background: #f8fafc; }
         table.offer-table td.text-left { text-align: left; }
+
+        #canvas-target-day {
+            background: #ffffff;
+            padding: 40px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            min-height: 800px;
+            color: #000;
+            border-radius: 4px;
+        }
+
+        .preview-panel {
+            background: #ffffff;
+            padding: 40px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+            color: #000;
+            border-radius: 4px;
+        }
+
+        .empty-msg {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+            font-style: italic;
+        }

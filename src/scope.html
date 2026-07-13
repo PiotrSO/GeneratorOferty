@@ -12,31 +12,57 @@
 <body>
 
     <div class="toolbar">
-        <button class="btn-add" onclick="addTask()"><span>➕</span> Dodaj czynność</button>
+        <button class="btn-add" onclick="addTask()"><span>➕</span> Dodaj czynność (Prace)</button>
+        <button class="btn-add" onclick="addTaskDay()"><span>➕</span> Dodaj czynność (Serwis Dzienny)</button>
         <button class="btn-save" onclick="manualSync()"><span>💾</span> Zapisz do Oferty</button>
         <button class="btn-load">
             <span>📂</span> Wczytaj kopię
             <input type="file" id="file-loader" accept=".json" onchange="loadData(this)">
         </button>
-        <button class="btn-reset" onclick="resetToDefault()"><span>🔄</span> Resetuj</button>
-        <button class="btn-jpg" onclick="generateJPG()"><span>📷</span> Pobierz JPG</button>
+        <button class="btn-reset" onclick="resetToDefault()"><span>🔄</span> Resetuj (Prace)</button>
+        <button class="btn-reset" onclick="resetToDefaultDay()"><span>🔄</span> Resetuj (Serwis Dzienny)</button>
+        <button class="btn-jpg" onclick="generateJPG()"><span>📷</span> Pobierz JPG (Prace)</button>
+        <button class="btn-jpg" onclick="generateJPGDay()"><span>📷</span> Pobierz JPG (Serwis Dzienny)</button>
     </div>
 
-    <div class="main-wrapper">
-        <div class="card">
-            <div class="card-title">Edytor Czynności</div>
-            <div id="editor-list"></div>
-            <button class="btn-add" style="width:100%; margin-top:20px; justify-content: center;" onclick="addTask()">Dodaj kolejną pozycję</button>
+    <div class="main-wrapper" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <!-- LEWY PANEL: DWA EDYTORY -->
+        <div style="display: flex; flex-direction: column; gap: 30px;">
+            <!-- EDYTOR 1: ZAKRESY PRAC PORZĄDKOWYCH -->
+            <div class="card">
+                <div class="card-title">1. Zakres Prac Porządkowych</div>
+                <div id="editor-list"></div>
+                <button class="btn-add" style="width:100%; margin-top:20px; justify-content: center;" onclick="addTask()">Dodaj czynność</button>
+            </div>
+
+            <!-- EDYTOR 2: ZAKRESY SERWISU DZIENNEGO -->
+            <div class="card">
+                <div class="card-title">2. Zakresy Czynności Serwisu Dziennego</div>
+                <div id="editor-list-day"></div>
+                <button class="btn-add" style="width:100%; margin-top:20px; justify-content: center;" onclick="addTaskDay()">Dodaj czynność</button>
+            </div>
         </div>
 
-        <div class="preview-container">
-            <div id="canvas-target">
+        <!-- PRAWY PANEL: DWE TABELE PODGLĄDU -->
+        <div class="preview-container" style="display: flex; flex-direction: column; gap: 30px;">
+            <!-- TABELA 1: ZAKRESY PRAC -->
+            <div id="canvas-target" class="preview-panel">
                 <div class="offer-title">Wykaz czynności / prac porządkowych</div>
                 <table class="offer-table">
                     <thead><tr id="preview-header-row"></tr></thead>
                     <tbody id="preview-body"></tbody>
                 </table>
-                <div id="empty-msg" style="display:none; text-align:center; padding:40px; color:#94a3b8; font-style:italic;">Brak zaznaczonych czynności.</div>
+                <div id="empty-msg" class="empty-msg" style="display:none; text-align:center; padding:40px; color:#94a3b8; font-style:italic;">Brak zaznaczonych czynności.</div>
+            </div>
+
+            <!-- TABELA 2: ZAKRESY SERWISU DZIENNEGO -->
+            <div id="canvas-target-day" class="preview-panel">
+                <div class="offer-title">Wykaz Czynności Serwisu Dziennego</div>
+                <table class="offer-table">
+                    <thead><tr id="preview-header-row-day"></tr></thead>
+                    <tbody id="preview-body-day"></tbody>
+                </table>
+                <div id="empty-msg-day" class="empty-msg" style="display:none; text-align:center; padding:40px; color:#94a3b8; font-style:italic;">Brak zaznaczonych czynności.</div>
             </div>
         </div>
     </div>

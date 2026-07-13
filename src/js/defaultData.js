@@ -32,8 +32,11 @@ const defaultFullData = [
 const defaultTasksInit = defaultFullData.map(task => ({
     name: task.name,
     biuro: task.biuro,
+    biuroCus: task.biuroCus || "",
     kuchnia: task.kuchnia,
-    wc: task.wc
+    kuchniaCus: task.kuchniaCus || "",
+    wc: task.wc,
+    wcCus: task.wcCus || ""
 }));
 
 const optionsList = [

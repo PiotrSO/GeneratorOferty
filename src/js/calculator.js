@@ -148,9 +148,10 @@ const rowDefinitions = [
         if (showAlert) alert('Zapisano pomyślnie.');
     }
 
-   function loadData() {
-        const data = AppSync.loadCalculator();
-        if (!data) return;
+    function loadData() {
+        try {
+            const data = AppSync.loadCalculator();
+            if (!data) return;
             for (const [key, val] of Object.entries(data)) {
                 if (key === 'selectedPrice') {
                     document.getElementById('selectedPrice').value = val;

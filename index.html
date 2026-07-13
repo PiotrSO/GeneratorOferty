@@ -299,6 +299,12 @@
             frameCena.contentWindow.loadData();
         }
 
+        // Sync Scope
+        const frameScope = document.getElementById('app-1');
+        if (frameScope && frameScope.contentWindow && frameScope.contentWindow.refreshTasks) {
+            frameScope.contentWindow.refreshTasks();
+        }
+
         // Sync Offer
         const frameOferta = document.getElementById('app-2');
         if (frameOferta && frameOferta.contentWindow && frameOferta.contentWindow.syncData) {

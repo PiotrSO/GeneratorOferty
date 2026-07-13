@@ -12,7 +12,8 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
-      nodeIntegrationInSubFrames: false
+      nodeIntegrationInSubFrames: true,
+      webSecurity: false
     }
   });
 
@@ -63,7 +64,8 @@ ipcMain.on('save-pdf', async (event, defaultName, htmlContent) => {
         contextIsolation: true,
         preload: path.join(__dirname, 'preload.js'),
         backgroundThrottling: false,
-        nodeIntegrationInSubFrames: false
+        nodeIntegrationInSubFrames: true,
+        webSecurity: false
       }
     });
 
