@@ -209,6 +209,13 @@
         .btn-add-rate:hover {
             background-color: #16a34a;
         }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            50% { transform: translateX(6px); }
+            75% { transform: translateX(-3px); }
+        }
     </style>
 </head>
 <body>
@@ -221,6 +228,7 @@
             <span id="lock-status-text" style="font-weight: 600; font-size: 0.9rem; color: var(--text-dark);">Tryb Podglądu (Edycja zablokowana)</span>
         </div>
         <div id="password-input-group" style="display: flex; align-items: center; gap: 10px;">
+            <span id="password-error-msg" style="color: #ef4444; font-size: 0.85rem; font-weight: 600; display: none; margin-right: 5px; animation: shake 0.4s ease-in-out;">Niepoprawne hasło!</span>
             <input type="text" id="adminPassword" placeholder="Wpisz hasło administratora" style="padding: 8px 12px; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; width: 200px; font-weight: normal; -webkit-text-security: disc;">
             <button onclick="unlockEditor()" class="btn-add-rate" style="height: 36px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; line-height: 1;">Odblokuj edycję</button>
         </div>
@@ -407,12 +415,27 @@
 
     function unlockEditor() {
         const pwdInput = document.getElementById('adminPassword');
+        const errorMsg = document.getElementById('password-error-msg');
+        
         if (pwdInput.value === 'SS2018') {
+            if (errorMsg) errorMsg.style.display = 'none';
             setEditMode(true);
         } else {
-            alert("Niepoprawne hasło administratora.");
+            if (errorMsg) {
+                // Wyłącz i włącz ponownie, aby zresetować animację CSS shake
+                errorMsg.style.display = 'none';
+                void errorMsg.offsetWidth; // force reflow
+                errorMsg.style.display = 'inline-block';
+                
+                // Schowaj błąd po 3 sekundach
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 3000);
+            }
             pwdInput.value = '';
-            pwdInput.focus();
+            setTimeout(() => {
+                pwdInput.focus();
+            }, 50);
         }
     }
 
