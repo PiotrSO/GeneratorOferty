@@ -269,6 +269,8 @@ function applyCalcData(calcData) {
 
     if (calcData.selectedPrice) document.getElementById('iPrice').value = calcData.selectedPrice;
     if (calcData.clientName) document.getElementById('iClient').value = calcData.clientName;
+    if (calcData.clientAddress) document.getElementById('iAddr').value = calcData.clientAddress;
+    if (calcData.objectAddress) document.getElementById('iLoc').value = calcData.objectAddress;
     if (calcData.officeArea) document.getElementById('iArea').value = calcData.officeArea;
 
     // Zmiana formatu daty z kalendarza (YYYY-MM-DD) na polski (DD.MM.YYYY)
