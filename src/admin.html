@@ -221,7 +221,7 @@
             <span id="lock-status-text" style="font-weight: 600; font-size: 0.9rem; color: var(--text-dark);">Tryb Podglądu (Edycja zablokowana)</span>
         </div>
         <div id="password-input-group" style="display: flex; align-items: center; gap: 10px;">
-            <input type="password" id="adminPassword" placeholder="Wpisz hasło administratora" style="padding: 8px 12px; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; width: 200px; font-weight: normal;">
+            <input type="text" id="adminPassword" placeholder="Wpisz hasło administratora" style="padding: 8px 12px; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; width: 200px; font-weight: normal; -webkit-text-security: disc;">
             <button onclick="unlockEditor()" class="btn-add-rate" style="height: 36px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; line-height: 1;">Odblokuj edycję</button>
         </div>
         <button id="lock-btn" onclick="lockEditor()" class="btn-delete" style="display: none; height: 36px; padding: 0 15px; font-size: 0.85rem; align-items: center; justify-content: center;">Zablokuj edycję</button>

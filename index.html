@@ -348,6 +348,11 @@
         targetFrame.classList.add('active');
         element.classList.add('active');
 
+        // Wymuś focus na aktywnej ramce, aby umożliwić natychmiastowe pisanie w Electronie
+        try {
+            targetFrame.contentWindow.focus();
+        } catch (e) {}
+
         // Optional: Trigger a sync when switching to offer
         if (index === 2) {
             window.forceRefreshAll();
