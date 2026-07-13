@@ -219,6 +219,53 @@
             border-radius: 50%;
             box-shadow: 0 0 10px #22c55e;
         }
+
+        .btn-project-save {
+            padding: 12px 20px;
+            font-family: inherit;
+            background: linear-gradient(135deg, var(--primary), #ff4d4d);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(227, 6, 19, 0.2);
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        .btn-project-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(227, 6, 19, 0.3);
+            filter: brightness(1.1);
+        }
+        
+        .btn-project-load {
+            padding: 12px 20px;
+            font-family: inherit;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        .btn-project-load:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -249,6 +296,18 @@
             <span class="icon">📄</span>
             <span>Edytor Oferty Finalnej</span>
         </div>
+    </div>
+
+    <div style="padding: 0 25px; margin: 15px 0 10px 0; border-top: 1px solid var(--glass-border); opacity: 0.5;"></div>
+    <div style="padding: 0 25px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); font-weight: 700; margin-bottom: 10px;">Projekt</div>
+    
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 0 15px; margin-bottom: 20px;">
+        <button onclick="saveProjectData()" class="btn-project-save">
+            <span>💾</span> Zapisz Projekt
+        </button>
+        <button onclick="loadProjectData()" class="btn-project-load">
+            <span>📂</span> Wczytaj Projekt
+        </button>
     </div>
 
     <div class="sidebar-footer">
@@ -290,27 +349,102 @@
         }
     }
 
-    window.forceRefreshAll = function() {
-        console.log("Dashboard: Synchronizacja danych...");
+    window.forceRefreshAll = function(excludeSource) {
+        console.log("Dashboard: Synchronizacja danych (wykluczenie: " + excludeSource + ")...");
+        
+        if (excludeSource && window.electronAPI) {
+            window.electronAPI.setDirty(true);
+        }
         
         // Sync Calculator
         const frameCena = document.getElementById('app-0');
-        if (frameCena && frameCena.contentWindow && frameCena.contentWindow.loadData) {
+        if (frameCena && frameCena.contentWindow && frameCena.contentWindow.loadData && excludeSource !== 'calculator') {
             frameCena.contentWindow.loadData();
         }
 
         // Sync Scope
         const frameScope = document.getElementById('app-1');
-        if (frameScope && frameScope.contentWindow && frameScope.contentWindow.refreshTasks) {
+        if (frameScope && frameScope.contentWindow && frameScope.contentWindow.refreshTasks && excludeSource !== 'scope') {
             frameScope.contentWindow.refreshTasks();
         }
 
         // Sync Offer
         const frameOferta = document.getElementById('app-2');
-        if (frameOferta && frameOferta.contentWindow && frameOferta.contentWindow.syncData) {
+        if (frameOferta && frameOferta.contentWindow && frameOferta.contentWindow.syncData && excludeSource !== 'offer') {
             frameOferta.contentWindow.syncData();
         }
     };
+
+    function getProjectState() {
+        return {
+            calculator: localStorage.getItem('kalkulator_v3_1'),
+            tasks: localStorage.getItem('current_tasks_data'),
+            tasksDay: localStorage.getItem('current_tasks_data_day'),
+            offerSidebar: localStorage.getItem('oferta_sidebar_state'),
+            images: localStorage.getItem('oferta_images_state')
+        };
+    }
+
+    window.saveProjectData = async function() {
+        console.log("Dashboard: Przygotowanie zapisu projektu...");
+        const state = getProjectState();
+        const jsonString = JSON.stringify(state, null, 2);
+        
+        if (window.electronAPI) {
+            const result = await window.electronAPI.saveProject(jsonString);
+            if (result.success) {
+                console.log("Dashboard: Projekt zapisany do " + result.filePath);
+                window.electronAPI.setDirty(false);
+            }
+            return result.success;
+        } else {
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'projekt-oferty.ssproj';
+            link.click();
+            return true;
+        }
+    };
+
+    window.loadProjectData = async function() {
+        console.log("Dashboard: Rozpoczęcie wczytywania projektu...");
+        if (window.electronAPI) {
+            const result = await window.electronAPI.loadProject();
+            if (result.success && result.content) {
+                try {
+                    const state = JSON.parse(result.content);
+                    applyProjectState(state);
+                    alert("Projekt został wczytany pomyślnie!");
+                    window.electronAPI.setDirty(false);
+                } catch (e) {
+                    alert("Błąd wczytywania pliku projektu: " + e.message);
+                }
+            }
+        } else {
+            alert("Funkcja wczytywania projektu jest dostępna w wersji desktopowej.");
+        }
+    };
+
+    function applyProjectState(state) {
+        if (!state) return;
+        if (state.calculator) localStorage.setItem('kalkulator_v3_1', state.calculator);
+        if (state.tasks) localStorage.setItem('current_tasks_data', state.tasks);
+        if (state.tasksDay) localStorage.setItem('current_tasks_data_day', state.tasksDay);
+        if (state.offerSidebar) localStorage.setItem('oferta_sidebar_state', state.offerSidebar);
+        if (state.images) localStorage.setItem('oferta_images_state', state.images);
+        
+        window.forceRefreshAll();
+    }
+
+    if (window.electronAPI) {
+        window.electronAPI.onTriggerSaveOnClose(async () => {
+            const success = await window.saveProjectData();
+            if (success) {
+                window.electronAPI.closeAppForced();
+            }
+        });
+    }
 </script>
 </body>
 </html>

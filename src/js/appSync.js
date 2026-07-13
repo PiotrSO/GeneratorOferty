@@ -1,14 +1,19 @@
 // src/js/appSync.js
 const AppSync = {
-    triggerRefresh: function() {
+    triggerRefresh: function(source) {
         if (window.parent && window.parent.forceRefreshAll) {
-            window.parent.forceRefreshAll();
+            window.parent.forceRefreshAll(source);
         }
     },
     
-    saveTasks: function(tasksArray) {
+    saveTasks: function(tasksArray, source) {
         localStorage.setItem('current_tasks_data', JSON.stringify(tasksArray));
-        this.triggerRefresh();
+        this.triggerRefresh(source);
+    },
+
+    saveTasksDay: function(tasksArray, source) {
+        localStorage.setItem('current_tasks_data_day', JSON.stringify(tasksArray));
+        this.triggerRefresh(source);
     },
     
     loadTasks: function() {
@@ -23,9 +28,9 @@ const AppSync = {
         return null;
     },
 
-    saveCalculator: function(calcData) {
+    saveCalculator: function(calcData, source) {
         localStorage.setItem('kalkulator_v3_1', JSON.stringify(calcData));
-        this.triggerRefresh();
+        this.triggerRefresh(source);
     },
 
     loadCalculator: function() {

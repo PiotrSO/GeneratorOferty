@@ -1,21 +1,21 @@
 :root { 
-            --primary: #0056b3; 
-            --accent: #198754;
-            --bg-color: #f8fafc; 
-            --border-color: #e2e8f0; 
-            --white: #ffffff;
-            --text-dark: #1e293b;
-            --text-muted: #64748b;
-        }
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-color); 
-            padding: 40px 20px; 
-            max-width: 1000px; 
-            margin: 0 auto; 
-            color: var(--text-dark);
-        }
+    --primary: #e30613; 
+    --accent: #22c55e;
+    --bg-color: #f8fafc; 
+    --border-color: #e2e8f0; 
+    --white: #ffffff;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+}
+
+body { 
+    font-family: 'Outfit', 'Inter', sans-serif; 
+    background-color: var(--bg-color); 
+    padding: 40px 20px; 
+    max-width: 1000px; 
+    margin: 0 auto; 
+    color: var(--text-dark);
+}
 
         .card {
             background: var(--white);
@@ -77,7 +77,7 @@
         input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+            box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.15);
         }
 
         .input-grid { 
@@ -236,10 +236,10 @@
             height: 50px;
             justify-content: center;
             font-size: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 86, 179, 0.3);
+            box-shadow: 0 4px 6px -1px rgba(227, 6, 19, 0.3);
         }
 
-        .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 6px 10px -1px rgba(0, 86, 179, 0.4); }
+        .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 6px 10px -1px rgba(227, 6, 19, 0.4); }
 
         .btn-save { background-color: #0ea5e9; color: white; }
         .btn-jpg { background-color: #ef4444; color: white; }

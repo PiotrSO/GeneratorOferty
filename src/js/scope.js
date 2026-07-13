@@ -147,30 +147,43 @@
         function getDisplay(val, cus) { return val === 'other' ? (cus || 'Inne') : val; }
 
         // ===== SYNCHRONIZACJA TABELA 1 =====
-        function syncToApp() { AppSync.saveTasks(appData); }
+        function syncToApp(source) { AppSync.saveTasks(appData, source); }
         function manualSync() { syncToApp(); syncToAppDay(); alert("Zsynchronizowano z ofertą."); }
         function resetToDefault() { if(confirm("Reset do domyślnych?")) { appData = JSON.parse(JSON.stringify(window.defaultFullData)); renderAll(); syncToApp(); } }
         
-        function updateName(idx, val) { appData[idx].name = val; renderPreview(); syncToApp(); }
-        function updateVal(idx, field, val) { appData[idx][field] = val; renderAll(); syncToApp(); }
-        function updateCus(idx, field, val) { appData[idx][field] = val; renderPreview(); syncToApp(); }
-        function addTask() { appData.push({ id: Date.now(), name: "Nowa czynność", biuro: "0", biuroCus: "", kuchnia: "0", kuchniaCus: "", wc: "0", wcCus: "" }); renderAll(); syncToApp(); }
-        function removeTask(idx) { appData.splice(idx, 1); renderAll(); syncToApp(); }
+        function updateName(idx, val) { appData[idx].name = val; renderPreview(); syncToApp('scope'); }
+        function updateVal(idx, field, val) { appData[idx][field] = val; renderAll(); syncToApp('scope'); }
+        function updateCus(idx, field, val) { appData[idx][field] = val; renderPreview(); syncToApp('scope'); }
+        function addTask() { appData.push({ id: Date.now(), name: "Nowa czynność", biuro: "0", biuroCus: "", kuchnia: "0", kuchniaCus: "", wc: "0", wcCus: "" }); renderAll(); syncToApp('scope'); }
+        function removeTask(idx) { appData.splice(idx, 1); renderAll(); syncToApp('scope'); }
 
         // ===== SYNCHRONIZACJA TABELA 2 =====
-        function syncToAppDay() { localStorage.setItem('current_tasks_data_day', JSON.stringify(appDataDay)); }
+        function syncToAppDay(source) { AppSync.saveTasksDay(appDataDay, source); }
         function resetToDefaultDay() { if(confirm("Reset do domyślnych?")) { appDataDay = JSON.parse(JSON.stringify(window.defaultFullData)); renderAll(); syncToAppDay(); } }
         
-        function updateNameDay(idx, val) { appDataDay[idx].name = val; renderPreviewDay(); syncToAppDay(); }
-        function updateValDay(idx, field, val) { appDataDay[idx][field] = val; renderAll(); syncToAppDay(); }
-        function updateCusDay(idx, field, val) { appDataDay[idx][field] = val; renderPreviewDay(); syncToAppDay(); }
-        function addTaskDay() { appDataDay.push({ id: Date.now(), name: "Nowa czynność", biuro: "0", biuroCus: "", kuchnia: "0", kuchniaCus: "", wc: "0", wcCus: "" }); renderAll(); syncToAppDay(); }
-        function removeTaskDay(idx) { appDataDay.splice(idx, 1); renderAll(); syncToAppDay(); }
+        function updateNameDay(idx, val) { appDataDay[idx].name = val; renderPreviewDay(); syncToAppDay('scope'); }
+        function updateValDay(idx, field, val) { appDataDay[idx][field] = val; renderAll(); syncToAppDay('scope'); }
+        function updateCusDay(idx, field, val) { appDataDay[idx][field] = val; renderPreviewDay(); syncToAppDay('scope'); }
+        function addTaskDay() { appDataDay.push({ id: Date.now(), name: "Nowa czynność", biuro: "0", biuroCus: "", kuchnia: "0", kuchniaCus: "", wc: "0", wcCus: "" }); renderAll(); syncToAppDay('scope'); }
+        function removeTaskDay(idx) { appDataDay.splice(idx, 1); renderAll(); syncToAppDay('scope'); }
 
         function loadData(input) {
             const file = input.files[0]; if(!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) { try { appData = JSON.parse(e.target.result); renderAll(); syncToApp(); } catch(err) {} };
+            reader.onload = function(e) { 
+                try { 
+                    const data = JSON.parse(e.target.result); 
+                    if (Array.isArray(data) && data.every(item => item && typeof item.name === 'string')) {
+                        appData = data; 
+                        renderAll(); 
+                        syncToApp(); 
+                    } else {
+                        alert("Nieprawidłowy format pliku JSON z zadaniami.");
+                    }
+                } catch(err) {
+                    alert("Błąd odczytu lub przetwarzania pliku JSON.");
+                } 
+            };
             reader.readAsText(file); input.value = '';
         }
 

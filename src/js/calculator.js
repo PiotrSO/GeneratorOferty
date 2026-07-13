@@ -44,7 +44,8 @@ const rowDefinitions = [
 
     function calculateTime() {
         const getV = (id) => parseFloat(document.getElementById(id).value) || 0;
-        const days = parseFloat(document.querySelector('input[data-row-id="2"][data-variant="0"]').value) || 1;
+        const daysInputVal = parseFloat(document.querySelector('input[data-row-id="2"][data-variant="0"]').value);
+        const days = (!isNaN(daysInputVal) && daysInputVal > 0) ? daysInputVal : 1;
         
         let mins = 0;
         let vBase = (getV('officeArea')/100)*10, vF = getV('vacFreq');
@@ -144,7 +145,7 @@ const rowDefinitions = [
         });
         data['selectedPrice'] = document.getElementById('selectedPrice').value;
         
-        AppSync.saveCalculator(data);
+        AppSync.saveCalculator(data, 'calculator');
         if (showAlert) alert('Zapisano pomyślnie.');
     }
 

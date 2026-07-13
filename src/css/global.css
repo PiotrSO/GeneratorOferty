@@ -1,7 +1,7 @@
 /* src/css/global.css */
 :root {
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
+    --primary: #e30613;
+    --primary-dark: #b01f15;
     --success: #22c55e;
     --danger: #ef4444;
     --bg-color: #f8fafc;
@@ -12,6 +12,6 @@
 }
 
 body {
-    font-family: 'Inter', 'Arial', sans-serif;
+    font-family: 'Outfit', 'Inter', 'Arial', sans-serif;
     margin: 0;
 }

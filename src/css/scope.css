@@ -1,25 +1,25 @@
 :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --success: #22c55e;
-            --danger: #ef4444;
-            --bg-color: #f8fafc;
-            --text-dark: #1e293b;
-            --text-muted: #64748b;
-            --white: #ffffff;
-            --border: #e2e8f0;
-        }
+    --primary: #e30613;
+    --primary-dark: #b01f15;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --bg-color: #f8fafc;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --white: #ffffff;
+    --border: #e2e8f0;
+}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-dark);
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+body {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+    margin: 0;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
         .toolbar {
             position: sticky;
@@ -158,8 +158,8 @@
 
         .custom-val-input {
             margin-top: 8px;
-            background-color: #eff6ff;
-            border-color: #bfdbfe;
+            background-color: #fef2f2;
+            border-color: #fecaca;
             display: none;
         }
 

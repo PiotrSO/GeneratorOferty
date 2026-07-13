@@ -25,6 +25,27 @@ function upd() {
     const eveFreq = getValue('iEveFreq', '5');
     const eveTime = getValue('iEveTime', '17:00');
 
+    // Zapis stanu paska bocznego do localStorage
+    const sidebarState = {
+        title: titleVal,
+        client: client,
+        addr: addr,
+        date: date,
+        loc: loc,
+        area: area,
+        price: price,
+        dayRbh: getValue('iDayRbh', '0'),
+        dayFreq: dayFreq,
+        dayHours: dayHours,
+        eveRbh: getValue('iEveRbh', '0'),
+        eveFreq: eveFreq,
+        eveTime: eveTime
+    };
+    localStorage.setItem('oferta_sidebar_state', JSON.stringify(sidebarState));
+    if (window.AppSync) {
+        window.AppSync.triggerRefresh('offer');
+    }
+
     const titleHtml = titleVal.replace(/\n/g, '<br>');
     const coverTitle = document.getElementById('oTitleCover');
     if (coverTitle) coverTitle.innerHTML = titleHtml;
@@ -231,6 +252,9 @@ function handleFileSelect(evt, imgId) {
             img.src = e.target.result;
             img.style.display = 'block';
             saveImages(); // Zapisujemy stan po zmianie
+            if (window.AppSync) {
+                window.AppSync.triggerRefresh('offer');
+            }
         }
         if (imgId === 'mainLogoCover') {
             document.querySelectorAll('.logo-header').forEach(el => el.src = e.target.result);
@@ -284,6 +308,30 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             console.error("Błąd parsowania zadań dziennych:", e);
             tasksDataDay = [];
+        }
+    }
+
+    // Wczytywanie stanu paska bocznego Oferty
+    const savedSidebar = localStorage.getItem('oferta_sidebar_state');
+    if (savedSidebar) {
+        try {
+            const state = JSON.parse(savedSidebar);
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+            setVal('iTitle', state.title);
+            setVal('iClient', state.client);
+            setVal('iAddr', state.addr);
+            setVal('iDate', state.date);
+            setVal('iLoc', state.loc);
+            setVal('iArea', state.area);
+            setVal('iPrice', state.price);
+            setVal('iDayRbh', state.dayRbh);
+            setVal('iDayFreq', state.dayFreq);
+            setVal('iDayHours', state.dayHours);
+            setVal('iEveRbh', state.eveRbh);
+            setVal('iEveFreq', state.eveFreq);
+            setVal('iEveTime', state.eveTime);
+        } catch (e) {
+            console.error("Błąd wczytywania stanu paska bocznego oferty:", e);
         }
     }
 
@@ -375,16 +423,7 @@ function restoreImages() {
 
     logDiag("Inicjalizacja wczytywania...");
     const saved = localStorage.getItem('oferta_images_state');
-    let fs, pathMod;
-    try {
-        if (typeof require !== 'undefined') {
-            fs = require('fs');
-            pathMod = require('path');
-            logDiag("✅ Node.js wykryty");
-        } else {
-            logDiag("❌ Brak Node.js (tryb przeglądarki)");
-        }
-    } catch (e) { logDiag("❌ Błąd require: " + e.message); }
+    logDiag("🌐 Tryb przeglądarki (zasoby z pamięci lokalnej)");
 
     const ids = ['ref1', 'ref2', 'ref3', 'ref4', 'ref5', 'ref6', 'mainLogoCover', 'logoRzf', 'bgCover'];
     let state = {};
@@ -426,6 +465,9 @@ function resetImages() {
     if (confirm("UWAGA: Wszystkie własne zmiany zostaną usunięte. Czy na pewno chcesz zresetować grafiki?")) {
         localStorage.removeItem('oferta_images_state');
         localStorage.setItem('oferta_images_ver', '5');
+        if (window.AppSync) {
+            window.AppSync.triggerRefresh('offer');
+        }
         location.reload();
     }
 }
