@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ustawienia Systemu - Panel Administratora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
+    <style>
+        :root {
+            --primary: #e30613;
+            --primary-dark: #b01f15;
+            --accent: #22c55e;
+            --bg-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --white: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .input-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.15);
+        }
+
+        /* Tabela stawek */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        th:first-child { border-top-left-radius: 8px; }
+        th:last-child { border-top-right-radius: 8px; }
+
+        .btn-delete {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid #fee2e2;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background-color: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .add-rate-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: flex-end;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        button.btn-action {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--primary), #ff4d4d);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(227, 6, 19, 0.3);
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(227, 6, 19, 0.4);
+        }
+
+        .btn-reset {
+            background-color: #64748b;
+            color: white;
+        }
+        .btn-reset:hover {
+            background-color: #475569;
+        }
+
+        .btn-add-rate {
+            background-color: var(--accent);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            height: 42px;
+            transition: all 0.2s;
+        }
+        .btn-add-rate:hover {
+            background-color: #16a34a;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Czasy Operacyjne Sprzątania (w minutach)</h2>
+        <div class="input-grid">
+            <div class="input-item">
+                <label>Powierzchnia biura (na 100 m²)</label>
+                <input type="number" id="time_officeArea100" step="1">
+            </div>
+            <div class="input-item">
+                <label>Stanowisko pracy (odkurzenie + biurko)</label>
+                <input type="number" id="time_workstation" step="1">
+            </div>
+            <div class="input-item">
+                <label>Kuchnia (podstawowe mycie)</label>
+                <input type="number" id="time_kitchen" step="1">
+            </div>
+            <div class="input-item">
+                <label>Sala konferencyjna</label>
+                <input type="number" id="time_confRoom" step="1">
+            </div>
+            <div class="input-item">
+                <label>Łazienka / Toaleta</label>
+                <input type="number" id="time_bathroom" step="1">
+            </div>
+            <div class="input-item">
+                <label>Kabina prysznicowa</label>
+                <input type="number" id="time_shower" step="1">
+            </div>
+            <div class="input-item">
+                <label>Obsługa zmywarki (ładowanie/rozładowanie)</label>
+                <input type="number" id="time_dishwasher" step="1">
+            </div>
+            <div class="input-item">
+                <label>Pow. podłóg twardych (zmywanie, na 100 m²)</label>
+                <input type="number" id="time_hardFloors100" step="1">
+            </div>
+            <div class="input-item">
+                <label>Stały narzut czasowy (przygotowanie itp.)</label>
+                <input type="number" id="time_flatOverhead" step="1">
+            </div>
+            <div class="input-item">
+                <label>Mycie lodówki (rozbicie na dzień)</label>
+                <input type="number" id="time_fridge" step="1">
+            </div>
+            <div class="input-item">
+                <label>Narzut na dodatkowe piętro (powyżej 1)</label>
+                <input type="number" id="time_floorOverhead" step="1">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Przelicznik Stawek Wynagrodzenia (Koszt Pracodawcy - KP)</h2>
+        
+        <div style="margin-bottom: 25px; max-width: 350px;" class="input-item">
+            <label>Niestandardowy mnożnik KP (gdy stawki brak w tabeli)</label>
+            <input type="number" id="kpMultiplier" step="0.0001">
+        </div>
+
+        <h3 style="font-size: 0.95rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Powiązane stawki netto vs KP</h3>
+        <table id="ratesTable">
+            <thead>
+                <tr>
+                    <th>Stawka Pracownika Netto [PLN]</th>
+                    <th>Koszt Pracodawcy KP [PLN]</th>
+                    <th width="80">Akcja</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Wiersze generowane dynamicznie -->
+            </tbody>
+        </table>
+
+        <div class="add-rate-form">
+            <div class="input-item">
+                <label>Stawka Netto [PLN]</label>
+                <input type="number" id="newNetto" step="0.01" placeholder="np. 28.00">
+            </div>
+            <div class="input-item">
+                <label>Koszt KP [PLN]</label>
+                <input type="number" id="newKP" step="0.01" placeholder="np. 46.69">
+            </div>
+            <button onclick="addRateRow()" class="btn-add-rate">Dodaj powiązanie</button>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button onclick="saveConfig()" class="btn-action btn-save">
+            <span>💾</span> Zapisz Ustawienia
+        </button>
+        <button onclick="resetToDefaults()" class="btn-action btn-reset">
+            <span>🔄</span> Przywróć Domyślne
+        </button>
+    </div>
+</div>
+
+<script src="js/appSync.js"></script>
+<script>
+    const defaultConfig = {
+        times: {
+            officeArea100: 10,
+            workstation: 2,
+            kitchen: 12,
+            confRoom: 10,
+            bathroom: 10,
+            shower: 10,
+            dishwasher: 10,
+            hardFloors100: 20,
+            flatOverhead: 10,
+            fridge: 20,
+            floorOverhead: 10
+        },
+        salaryMap: {
+            "22.50": "37.50",
+            "23.81": "39.71",
+            "25.00": "41.69",
+            "30.00": "50.03",
+            "35.00": "58.38",
+            "40.00": "66.72"
+        },
+        kpMultiplier: 1.6676
+    };
+
+    let activeConfig = JSON.parse(JSON.stringify(defaultConfig));
+
+    function loadAdminConfig() {
+        const saved = localStorage.getItem('admin_system_config');
+        if (saved) {
+            try {
+                activeConfig = JSON.parse(saved);
+                // Wypełnij ewentualne braki
+                if (!activeConfig.times) activeConfig.times = JSON.parse(JSON.stringify(defaultConfig.times));
+                if (!activeConfig.salaryMap) activeConfig.salaryMap = JSON.parse(JSON.stringify(defaultConfig.salaryMap));
+                if (activeConfig.kpMultiplier === undefined) activeConfig.kpMultiplier = defaultConfig.kpMultiplier;
+            } catch (e) {
+                console.error("Błąd wczytywania konfiguracji admina:", e);
+                activeConfig = JSON.parse(JSON.stringify(defaultConfig));
+            }
+        } else {
+            activeConfig = JSON.parse(JSON.stringify(defaultConfig));
+        }
+
+        // Wypełnianie pól
+        for (const [key, val] of Object.entries(activeConfig.times)) {
+            const input = document.getElementById('time_' + key);
+            if (input) input.value = val;
+        }
+        document.getElementById('kpMultiplier').value = activeConfig.kpMultiplier;
+
+        renderRatesTable();
+    }
+
+    function renderRatesTable() {
+        const tbody = document.querySelector('#ratesTable tbody');
+        tbody.innerHTML = '';
+
+        // Sortujemy klucze numerycznie
+        const sortedKeys = Object.keys(activeConfig.salaryMap).sort((a, b) => parseFloat(a) - parseFloat(b));
+
+        sortedKeys.forEach(netto => {
+            const kp = activeConfig.salaryMap[netto];
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-weight: 600;">${parseFloat(netto).toFixed(2)} PLN</td>
+                <td style="font-weight: 600; color: var(--primary);">${parseFloat(kp).toFixed(2)} PLN</td>
+                <td>
+                    <button class="btn-delete" onclick="deleteRate('${netto}')">Usuń</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function addRateRow() {
+        const nettoVal = parseFloat(document.getElementById('newNetto').value);
+        const kpVal = parseFloat(document.getElementById('newKP').value);
+
+        if (isNaN(nettoVal) || nettoVal <= 0 || isNaN(kpVal) || kpVal <= 0) {
+            alert("Podaj poprawne wartości liczbowe dla stawek.");
+            return;
+        }
+
+        const key = nettoVal.toFixed(2);
+        activeConfig.salaryMap[key] = kpVal.toFixed(2);
+
+        document.getElementById('newNetto').value = '';
+        document.getElementById('newKP').value = '';
+
+        renderRatesTable();
+    }
+
+    // Usunięcie stawki
+    window.deleteRate = function(nettoKey) {
+        if (confirm(`Czy na pewno chcesz usunąć powiązanie dla stawki netto ${parseFloat(nettoKey).toFixed(2)} PLN?`)) {
+            delete activeConfig.salaryMap[nettoKey];
+            renderRatesTable();
+        }
+    }
+
+    function saveConfig() {
+        // Zbierz czasy
+        for (const key of Object.keys(activeConfig.times)) {
+            const input = document.getElementById('time_' + key);
+            if (input) {
+                const val = parseFloat(input.value);
+                activeConfig.times[key] = !isNaN(val) ? val : defaultConfig.times[key];
+            }
+        }
+
+        // Zbierz mnożnik
+        const multInput = document.getElementById('kpMultiplier');
+        const mult = parseFloat(multInput.value);
+        activeConfig.kpMultiplier = !isNaN(mult) && mult > 0 ? mult : defaultConfig.kpMultiplier;
+
+        // Zapis do localStorage
+        localStorage.setItem('admin_system_config', JSON.stringify(activeConfig));
+        
+        // Zasygnalizuj zmianę dla Kalkulatora
+        if (window.AppSync) {
+            window.AppSync.triggerRefresh('admin');
+        }
+
+        alert("Ustawienia zostały zapisane pomyślnie i zsynchronizowane z Kalkulatorem.");
+    }
+
+    function resetToDefaults() {
+        if (confirm("Czy na pewno chcesz zresetować wszystkie ustawienia do wartości domyślnych?")) {
+            activeConfig = JSON.parse(JSON.stringify(defaultConfig));
+            localStorage.setItem('admin_system_config', JSON.stringify(activeConfig));
+            
+            if (window.AppSync) {
+                window.AppSync.triggerRefresh('admin');
+            }
+            
+            loadAdminConfig();
+            alert("Przywrócono domyślne parametry systemowe.");
+        }
+    }
+
+    // Most dla wczytywania projektu z zewnątrz
+    window.loadAdminConfig = loadAdminConfig;
+
+    document.addEventListener('DOMContentLoaded', loadAdminConfig);
+</script>
+</body>
+</html>

@@ -296,6 +296,10 @@
             <span class="icon">📄</span>
             <span>Edytor Oferty Finalnej</span>
         </div>
+        <div class="nav-item" onclick="switchApp(3, this)">
+            <span class="icon">⚙️</span>
+            <span>Ustawienia Admina</span>
+        </div>
     </div>
 
     <div style="padding: 0 25px; margin: 15px 0 10px 0; border-top: 1px solid var(--glass-border); opacity: 0.5;"></div>
@@ -320,6 +324,7 @@
     <iframe id="app-0" class="app-frame active" src="src/calculator.html"></iframe>
     <iframe id="app-1" class="app-frame" src="src/scope.html"></iframe>
     <iframe id="app-2" class="app-frame" src="src/offer.html"></iframe>
+    <iframe id="app-3" class="app-frame" src="src/admin.html"></iframe>
 
     <div class="status-bar">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -373,6 +378,12 @@
         if (frameOferta && frameOferta.contentWindow && frameOferta.contentWindow.syncData && excludeSource !== 'offer') {
             frameOferta.contentWindow.syncData();
         }
+
+        // Sync Admin Settings
+        const frameAdmin = document.getElementById('app-3');
+        if (frameAdmin && frameAdmin.contentWindow && frameAdmin.contentWindow.loadAdminConfig && excludeSource !== 'admin') {
+            frameAdmin.contentWindow.loadAdminConfig();
+        }
     };
 
     function getProjectState() {
@@ -381,7 +392,8 @@
             tasks: localStorage.getItem('current_tasks_data'),
             tasksDay: localStorage.getItem('current_tasks_data_day'),
             offerSidebar: localStorage.getItem('oferta_sidebar_state'),
-            images: localStorage.getItem('oferta_images_state')
+            images: localStorage.getItem('oferta_images_state'),
+            adminConfig: localStorage.getItem('admin_system_config')
         };
     }
 
@@ -433,6 +445,7 @@
         if (state.tasksDay) localStorage.setItem('current_tasks_data_day', state.tasksDay);
         if (state.offerSidebar) localStorage.setItem('oferta_sidebar_state', state.offerSidebar);
         if (state.images) localStorage.setItem('oferta_images_state', state.images);
+        if (state.adminConfig) localStorage.setItem('admin_system_config', state.adminConfig);
         
         window.forceRefreshAll();
     }

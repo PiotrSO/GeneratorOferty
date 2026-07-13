@@ -14,7 +14,39 @@ const rowDefinitions = [
         { id: 13, name: "Cena Klient [PLN]", type: 'calc' }
     ];
 
-    const salaryMap = { "22.50": 37.50, "23.81": 39.71, "25.00": 41.69, "30.00": 50.03, "35.00": 58.38, "40.00": 66.72 };
+    function getAdminConfig() {
+        const saved = localStorage.getItem('admin_system_config');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.times && parsed.salaryMap) return parsed;
+            } catch (e) {}
+        }
+        return {
+            times: {
+                officeArea100: 10,
+                workstation: 2,
+                kitchen: 12,
+                confRoom: 10,
+                bathroom: 10,
+                shower: 10,
+                dishwasher: 10,
+                hardFloors100: 20,
+                flatOverhead: 10,
+                fridge: 20,
+                floorOverhead: 10
+            },
+            salaryMap: {
+                "22.50": "37.50",
+                "23.81": "39.71",
+                "25.00": "41.69",
+                "30.00": "50.03",
+                "35.00": "58.38",
+                "40.00": "66.72"
+            },
+            kpMultiplier: 1.6676
+        };
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         const dateInput = document.getElementById('calcDate');
@@ -43,27 +75,29 @@ const rowDefinitions = [
     }
 
     function calculateTime() {
+        const config = getAdminConfig();
+        const t = config.times;
         const getV = (id) => parseFloat(document.getElementById(id).value) || 0;
         const daysInputVal = parseFloat(document.querySelector('input[data-row-id="2"][data-variant="0"]').value);
         const days = (!isNaN(daysInputVal) && daysInputVal > 0) ? daysInputVal : 1;
         
         let mins = 0;
-        let vBase = (getV('officeArea')/100)*10, vF = getV('vacFreq');
+        let vBase = (getV('officeArea')/100)*t.officeArea100, vF = getV('vacFreq');
         if(vF > 0 && vF < days) vBase -= ((days - vF) * vBase) / days;
         
-        let wBase = getV('workstations')*2, wF = getV('workFreq');
+        let wBase = getV('workstations')*t.workstation, wF = getV('workFreq');
         if(wF > 0 && wF < days) wBase -= ((days - wF) * wBase) / days;
         
-        mins = vBase + wBase + getV('kitchens')*12 + getV('confRooms')*10 + getV('bathrooms')*10 + getV('showers')*10 + getV('dishwashers')*10 + (getV('hardFloors')/100)*20 + 10;
+        mins = vBase + wBase + getV('kitchens')*t.kitchen + getV('confRooms')*t.confRoom + getV('bathrooms')*t.bathroom + getV('showers')*t.shower + getV('dishwashers')*t.dishwasher + (getV('hardFloors')/100)*t.hardFloors100 + t.flatOverhead;
         
-        let fM = getV('fridges')*20; 
+        let fM = getV('fridges')*t.fridge; 
         if(days > 1) fM /= days;
         mins += fM;
         
-        if(getV('floors') > 1) mins += (getV('floors')-1)*10;
+        if(getV('floors') > 1) mins += (getV('floors')-1)*t.floorOverhead;
         
         const hrs = Math.round((mins/60)*100)/100;
-
+ 
         document.getElementById('cleaningTimeResult').style.display = 'block';
         document.getElementById('cleaningTimeResult').innerText = `Wyliczony czas: ${hrs} h (Wstawiono do Wariantu 0)`;
         document.querySelector('input[data-row-id="1"][data-variant="0"]').value = hrs;
@@ -72,6 +106,10 @@ const rowDefinitions = [
     }
 
     function recalcVariants() {
+        const config = getAdminConfig();
+        const salaryMap = config.salaryMap;
+        const kpMultiplier = config.kpMultiplier || 1.6676;
+
         for (let i = 0; i < 4; i++) {
             const g = (rid) => document.querySelector(`input[data-variant="${i}"][data-row-id="${rid}"]`);
             const val = (rid) => { const el = g(rid); return el && el.value ? parseFloat(el.value) : 0; };
@@ -85,10 +123,12 @@ const rowDefinitions = [
             
             let r4 = g(4) ? g(4).value : "0";
             let r4Val = parseFloat(r4);
-            if(r4 && salaryMap[r4Val.toFixed(2)]) {
-                g(5).value = salaryMap[r4Val.toFixed(2)].toFixed(2);
+            const r4Key = r4Val.toFixed(2);
+            
+            if(r4 && salaryMap[r4Key] !== undefined) {
+                g(5).value = parseFloat(salaryMap[r4Key]).toFixed(2);
             } else if (r4Val > 0) {
-                g(5).value = (r4Val * 1.6676).toFixed(2);
+                g(5).value = (r4Val * kpMultiplier).toFixed(2);
             }
             
             let n = val(4), kp = val(5);
