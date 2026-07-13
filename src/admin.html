@@ -214,6 +214,19 @@
 <body>
 
 <div class="container">
+    <!-- Pasek autoryzacji bezpieczeństwa -->
+    <div id="password-bar" style="background: rgba(227, 6, 19, 0.05); border: 1px solid rgba(227, 6, 19, 0.2); padding: 15px 25px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%; box-sizing: border-box;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.2rem;">🔒</span>
+            <span id="lock-status-text" style="font-weight: 600; font-size: 0.9rem; color: var(--text-dark);">Tryb Podglądu (Edycja zablokowana)</span>
+        </div>
+        <div id="password-input-group" style="display: flex; align-items: center; gap: 10px;">
+            <input type="password" id="adminPassword" placeholder="Wpisz hasło administratora" style="padding: 8px 12px; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; width: 200px; font-weight: normal;">
+            <button onclick="unlockEditor()" class="btn-add-rate" style="height: 36px; padding: 0 15px; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; line-height: 1;">Odblokuj edycję</button>
+        </div>
+        <button id="lock-btn" onclick="lockEditor()" class="btn-delete" style="display: none; height: 36px; padding: 0 15px; font-size: 0.85rem; align-items: center; justify-content: center;">Zablokuj edycję</button>
+    </div>
+
     <div class="card">
         <h2>Czasy Operacyjne Sprzątania (w minutach)</h2>
         <div class="input-grid">
@@ -278,7 +291,7 @@
                 <tr>
                     <th>Stawka Pracownika Netto [PLN]</th>
                     <th>Koszt Pracodawcy KP [PLN]</th>
-                    <th width="80">Akcja</th>
+                    <th width="100">Akcja</th>
                 </tr>
             </thead>
             <tbody>
@@ -337,6 +350,75 @@
     };
 
     let activeConfig = JSON.parse(JSON.stringify(defaultConfig));
+    let isEditingUnlocked = false;
+
+    function setEditMode(enabled) {
+        isEditingUnlocked = enabled;
+        
+        // 1. Zablokuj/Odblokuj pola czasu i mnożnik
+        document.querySelectorAll('.input-grid input, #kpMultiplier').forEach(input => {
+            if (enabled) {
+                input.removeAttribute('readonly');
+                input.style.backgroundColor = '#ffffff';
+                input.style.borderColor = 'var(--border-color)';
+            } else {
+                input.setAttribute('readonly', 'true');
+                input.style.backgroundColor = '#f1f5f9';
+                input.style.borderColor = '#e2e8f0';
+            }
+        });
+
+        // 2. Ukryj/Pokaż formularz dodawania stawki
+        const addForm = document.querySelector('.add-rate-form');
+        if (addForm) {
+            addForm.style.display = enabled ? 'grid' : 'none';
+        }
+
+        // 3. Ukryj/Pokaż przyciski zapisu na dole
+        const bottomActions = document.querySelector('.actions');
+        if (bottomActions) {
+            bottomActions.style.display = enabled ? 'flex' : 'none';
+        }
+
+        // 4. Pokaż/Ukryj sekcję hasła w pasku u góry
+        const pwdGroup = document.getElementById('password-input-group');
+        const lockBtn = document.getElementById('lock-btn');
+        const statusText = document.getElementById('lock-status-text');
+        const pwdBar = document.getElementById('password-bar');
+
+        if (enabled) {
+            pwdGroup.style.display = 'none';
+            lockBtn.style.display = 'flex';
+            statusText.innerText = "Tryb Edycji odblokowany (Administrator)";
+            pwdBar.style.backgroundColor = "rgba(34, 197, 94, 0.05)";
+            pwdBar.style.borderColor = "rgba(34, 197, 94, 0.2)";
+        } else {
+            pwdGroup.style.display = 'flex';
+            lockBtn.style.display = 'none';
+            statusText.innerText = "Tryb Podglądu (Edycja zablokowana)";
+            pwdBar.style.backgroundColor = "rgba(227, 6, 19, 0.05)";
+            pwdBar.style.borderColor = "rgba(227, 6, 19, 0.2)";
+            document.getElementById('adminPassword').value = '';
+        }
+
+        // 5. Odśwież tabelę stawek
+        renderRatesTable();
+    }
+
+    function unlockEditor() {
+        const pwdInput = document.getElementById('adminPassword');
+        if (pwdInput.value === 'SS2018') {
+            setEditMode(true);
+        } else {
+            alert("Niepoprawne hasło administratora.");
+            pwdInput.value = '';
+            pwdInput.focus();
+        }
+    }
+
+    function lockEditor() {
+        setEditMode(false);
+    }
 
     function loadAdminConfig() {
         const saved = localStorage.getItem('admin_system_config');
@@ -362,31 +444,35 @@
         }
         document.getElementById('kpMultiplier').value = activeConfig.kpMultiplier;
 
-        renderRatesTable();
+        // Synchronizuj obecny stan edycji (zablokowany przy nowym wczytaniu/load)
+        setEditMode(isEditingUnlocked);
     }
 
     function renderRatesTable() {
         const tbody = document.querySelector('#ratesTable tbody');
         tbody.innerHTML = '';
 
-        // Sortujemy klucze numerycznie
         const sortedKeys = Object.keys(activeConfig.salaryMap).sort((a, b) => parseFloat(a) - parseFloat(b));
 
         sortedKeys.forEach(netto => {
             const kp = activeConfig.salaryMap[netto];
             const tr = document.createElement('tr');
+            
+            const deleteBtnHtml = isEditingUnlocked 
+                ? `<button class="btn-delete" onclick="deleteRate('${netto}')">Usuń</button>` 
+                : `<span style="color:var(--text-muted); font-size:0.8rem; font-style:italic;">Brak uprawnień</span>`;
+
             tr.innerHTML = `
                 <td style="font-weight: 600;">${parseFloat(netto).toFixed(2)} PLN</td>
                 <td style="font-weight: 600; color: var(--primary);">${parseFloat(kp).toFixed(2)} PLN</td>
-                <td>
-                    <button class="btn-delete" onclick="deleteRate('${netto}')">Usuń</button>
-                </td>
+                <td>${deleteBtnHtml}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
     function addRateRow() {
+        if (!isEditingUnlocked) return;
         const nettoVal = parseFloat(document.getElementById('newNetto').value);
         const kpVal = parseFloat(document.getElementById('newKP').value);
 
@@ -404,8 +490,8 @@
         renderRatesTable();
     }
 
-    // Usunięcie stawki
     window.deleteRate = function(nettoKey) {
+        if (!isEditingUnlocked) return;
         if (confirm(`Czy na pewno chcesz usunąć powiązanie dla stawki netto ${parseFloat(nettoKey).toFixed(2)} PLN?`)) {
             delete activeConfig.salaryMap[nettoKey];
             renderRatesTable();
@@ -413,6 +499,7 @@
     }
 
     function saveConfig() {
+        if (!isEditingUnlocked) return;
         // Zbierz czasy
         for (const key of Object.keys(activeConfig.times)) {
             const input = document.getElementById('time_' + key);
@@ -430,7 +517,6 @@
         // Zapis do localStorage
         localStorage.setItem('admin_system_config', JSON.stringify(activeConfig));
         
-        // Zasygnalizuj zmianę dla Kalkulatora
         if (window.AppSync) {
             window.AppSync.triggerRefresh('admin');
         }
@@ -439,6 +525,7 @@
     }
 
     function resetToDefaults() {
+        if (!isEditingUnlocked) return;
         if (confirm("Czy na pewno chcesz zresetować wszystkie ustawienia do wartości domyślnych?")) {
             activeConfig = JSON.parse(JSON.stringify(defaultConfig));
             localStorage.setItem('admin_system_config', JSON.stringify(activeConfig));
@@ -452,9 +539,19 @@
         }
     }
 
-    // Most dla wczytywania projektu z zewnątrz
-    window.loadAdminConfig = loadAdminConfig;
+    // Dodanie obsługi klawisza Enter w polu hasła
+    document.addEventListener('DOMContentLoaded', () => {
+        const pwdInput = document.getElementById('adminPassword');
+        if (pwdInput) {
+            pwdInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    unlockEditor();
+                }
+            });
+        }
+    });
 
+    window.loadAdminConfig = loadAdminConfig;
     document.addEventListener('DOMContentLoaded', loadAdminConfig);
 </script>
 </body>
