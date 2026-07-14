@@ -1,4 +1,5 @@
 node_modules/
 dist/
+dist_backup_20260603_092919/
 *.log
 .env
