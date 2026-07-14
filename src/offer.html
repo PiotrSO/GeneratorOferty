@@ -64,26 +64,26 @@
                 oninput="upd()"></div>
         <div class="form-group"><label>Powierzchnia (m2)</label><input type="text" id="iArea" placeholder="200"
                 oninput="upd()"></div>
-        <div class="form-group"><label>Cena Netto</label><input type="text" id="iPrice" value="1344,00" oninput="upd()">
+        <div class="form-group"><label>Cena Netto (Łącznie)</label><input type="text" id="iPrice" value="1344,00" readonly style="background-color: #34495e; color: #bdc3c7; cursor: not-allowed;">
         </div>
 
         <hr style="border:0; border-top:1px solid #555; margin:15px 0;">
 
         <h3>1. Serwis Dzienny</h3>
-        <div class="form-group"><label>RBH (0 = ukryj)</label><input type="text" id="iDayRbh" value="0" oninput="upd()">
+        <div class="form-group"><label>RBH (0 = ukryj)</label><input type="text" id="iDayRbh" value="0" readonly style="background-color: #34495e; color: #bdc3c7; cursor: not-allowed;">
         </div>
-        <div class="form-group"><label>Dni w tygodniu</label><input type="text" id="iDayFreq" value="5" oninput="upd()">
+        <div class="form-group"><label>Dni w tygodniu</label><input type="text" id="iDayFreq" value="5" readonly style="background-color: #34495e; color: #bdc3c7; cursor: not-allowed;">
         </div>
-        <div class="form-group"><label>Godziny (od-do)</label><input type="text" id="iDayHours" value="8:00 do 16:00"
-                oninput="upd()"></div>
+        <div class="form-group"><label>Godziny (od-do)</label><input type="text" id="iDayHours" value="8:00 do 16:00" readonly style="background-color: #34495e; color: #bdc3c7; cursor: not-allowed;"></div>
+        <div class="form-group"><label>Cena miesięczna</label><input type="text" id="iDayPrice" value="0,00" readonly style="background-color: #34495e; color: #bdc3c7; cursor: not-allowed;"></div>
 
         <h3>2. Serwis Wieczorny</h3>
-        <div class="form-group"><label>RBH (0 = ukryj)</label><input type="text" id="iEveRbh" value="4" oninput="upd()">
+        <div class="form-group"><label>RBH (0 = ukryj)</label><input type="text" id="iEveRbh" value="4" readonly style="background-color: #34495e; color: #bdc3c7; cursor: not-allowed;">
         </div>
-        <div class="form-group"><label>Dni w tygodniu</label><input type="text" id="iEveFreq" value="5" oninput="upd()">
+        <div class="form-group"><label>Dni w tygodniu</label><input type="text" id="iEveFreq" value="5" readonly style="background-color: #34495e; color: #bdc3c7; cursor: not-allowed;">
         </div>
-        <div class="form-group"><label>Godzina rozp.</label><input type="text" id="iEveTime" value="17:00"
-                oninput="upd()"></div>
+        <div class="form-group"><label>Godzina rozp.</label><input type="text" id="iEveTime" value="17:00" readonly style="background-color: #34495e; color: #bdc3c7; cursor: not-allowed;"></div>
+        <div class="form-group"><label>Cena miesięczna</label><input type="text" id="iEvePrice" value="1344,00" readonly style="background-color: #34495e; color: #bdc3c7; cursor: not-allowed;"></div>
 
         <button class="btn-print" onclick="saveAsPDF()">ZAPISZ JAKO PDF</button>
     </div>

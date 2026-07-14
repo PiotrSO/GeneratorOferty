@@ -16,14 +16,30 @@ function upd() {
     const date = getValue('iDate', '');
     const loc = getValue('iLoc', '[adres Obiektu]');
     const area = getValue('iArea', '...');
-    const price = getValue('iPrice', '0,00');
 
     const dayRbh = parseFloat(getValue('iDayRbh', '0').replace(',', '.'));
     const dayFreq = getValue('iDayFreq', '5');
     const dayHours = getValue('iDayHours', '8:00 do 16:00');
+    const dayPriceStr = getValue('iDayPrice', '0,00');
+
     const eveRbh = parseFloat(getValue('iEveRbh', '0').replace(',', '.'));
     const eveFreq = getValue('iEveFreq', '5');
     const eveTime = getValue('iEveTime', '17:00');
+    const evePriceStr = getValue('iEvePrice', '1344,00');
+
+    // Obliczanie sumy cen
+    const dayPriceVal = parseFloat(dayPriceStr.replace(/\s/g, '').replace(',', '.')) || 0;
+    const evePriceVal = parseFloat(evePriceStr.replace(/\s/g, '').replace(',', '.')) || 0;
+    const totalPriceVal = dayPriceVal + evePriceVal;
+
+    const formatPolish = (val) => {
+        return val.toFixed(2).replace('.', ',');
+    };
+    const totalPriceStr = formatPolish(totalPriceVal);
+
+    // Aktualizacja pola Cena Netto w panelu bocznym
+    const priceEl = document.getElementById('iPrice');
+    if (priceEl) priceEl.value = totalPriceStr;
 
     // Zapis stanu paska bocznego do localStorage
     const sidebarState = {
@@ -33,13 +49,15 @@ function upd() {
         date: date,
         loc: loc,
         area: area,
-        price: price,
+        price: totalPriceStr,
         dayRbh: getValue('iDayRbh', '0'),
         dayFreq: dayFreq,
         dayHours: dayHours,
+        dayPrice: dayPriceStr,
         eveRbh: getValue('iEveRbh', '0'),
         eveFreq: eveFreq,
-        eveTime: eveTime
+        eveTime: eveTime,
+        evePrice: evePriceStr
     };
     localStorage.setItem('oferta_sidebar_state', JSON.stringify(sidebarState));
     if (window.AppSync) {
@@ -57,7 +75,7 @@ function upd() {
     safeSetHTML('oAddr2', addr.replace(/\n/g, '<br>'));
     safeSetText('oArea2', area);
     safeSetText('oLoc2', loc);
-    safeSetText('oPrice2', price);
+    safeSetText('oPrice2', totalPriceStr);
 
     let serviceHtml = '<b>Usługa obejmuje:</b><br><br>';
     let hasService = false;
@@ -267,7 +285,6 @@ function handleFileSelect(evt, imgId) {
 function applyCalcData(calcData) {
     if (!calcData) return;
 
-    if (calcData.selectedPrice) document.getElementById('iPrice').value = calcData.selectedPrice;
     if (calcData.clientName) document.getElementById('iClient').value = calcData.clientName;
     if (calcData.clientAddress) document.getElementById('iAddr').value = calcData.clientAddress;
     if (calcData.objectAddress) document.getElementById('iLoc').value = calcData.objectAddress;
@@ -284,6 +301,61 @@ function applyCalcData(calcData) {
             document.getElementById('iDate').value = calcData.calcDate;
         }
     }
+
+    // Sprawdzamy czy mamy nowe dane z tabeli podsumowania w kalkulatorze
+    if (calcData.summaryEveFreq !== undefined || calcData.summaryDayFreq !== undefined) {
+        if (calcData.summaryEveFreq !== undefined) document.getElementById('iEveFreq').value = calcData.summaryEveFreq;
+        if (calcData.summaryEveRbh !== undefined) document.getElementById('iEveRbh').value = calcData.summaryEveRbh;
+        
+        if (calcData.summaryEveHours !== undefined) {
+            let eveTime = calcData.summaryEveHours;
+            if (eveTime.startsWith('po ')) {
+                eveTime = eveTime.substring(3);
+            }
+            document.getElementById('iEveTime').value = eveTime;
+        }
+        if (calcData.summaryEvePrice !== undefined) document.getElementById('iEvePrice').value = calcData.summaryEvePrice;
+
+        if (calcData.summaryDayFreq !== undefined) document.getElementById('iDayFreq').value = calcData.summaryDayFreq;
+        if (calcData.summaryDayRbh !== undefined) document.getElementById('iDayRbh').value = calcData.summaryDayRbh;
+        if (calcData.summaryDayHours !== undefined) document.getElementById('iDayHours').value = calcData.summaryDayHours;
+        if (calcData.summaryDayPrice !== undefined) document.getElementById('iDayPrice').value = calcData.summaryDayPrice;
+
+        if (calcData.selectedPrice !== undefined) document.getElementById('iPrice').value = calcData.selectedPrice;
+    } else {
+        // Fallback dla starych danych kalkulatora
+        const totalPriceVal = calcData.selectedPrice ? parseFloat(calcData.selectedPrice.replace(',', '.')) : 0;
+        const dayPriceVal = calcData.v3_r13 ? parseFloat(calcData.v3_r13.replace(',', '.')) : 0;
+        let evePriceVal = totalPriceVal - dayPriceVal;
+        if (evePriceVal < 0) evePriceVal = 0;
+
+        const formatPolish = (val) => val.toFixed(2).replace('.', ',');
+
+        document.getElementById('iDayPrice').value = formatPolish(dayPriceVal);
+        document.getElementById('iEvePrice').value = formatPolish(evePriceVal);
+        document.getElementById('iPrice').value = formatPolish(totalPriceVal);
+
+        if (calcData.v3_r1) document.getElementById('iDayRbh').value = calcData.v3_r1.replace('.', ',');
+        if (calcData.v3_r2) document.getElementById('iDayFreq').value = calcData.v3_r2;
+
+        let selectedVariant = 0;
+        let minDiff = Infinity;
+        for (let v = 0; v <= 2; v++) {
+            const vPriceKey = `v${v}_r13`;
+            if (calcData[vPriceKey]) {
+                const vPrice = parseFloat(calcData[vPriceKey].replace(',', '.'));
+                const diff = Math.abs(vPrice - evePriceVal);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    selectedVariant = v;
+                }
+            }
+        }
+
+        if (calcData[`v${selectedVariant}_r1`]) document.getElementById('iEveRbh').value = calcData[`v${selectedVariant}_r1`].replace('.', ',');
+        if (calcData[`v${selectedVariant}_r2`]) document.getElementById('iEveFreq').value = calcData[`v${selectedVariant}_r2`];
+    }
+
     upd(); // Odśwież widok na dokumencie
 }
 
@@ -329,9 +401,11 @@ document.addEventListener('DOMContentLoaded', () => {
             setVal('iDayRbh', state.dayRbh);
             setVal('iDayFreq', state.dayFreq);
             setVal('iDayHours', state.dayHours);
+            setVal('iDayPrice', state.dayPrice || '0,00');
             setVal('iEveRbh', state.eveRbh);
             setVal('iEveFreq', state.eveFreq);
             setVal('iEveTime', state.eveTime);
+            setVal('iEvePrice', state.evePrice || '1344,00');
         } catch (e) {
             console.error("Błąd wczytywania stanu paska bocznego oferty:", e);
         }

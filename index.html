@@ -413,6 +413,11 @@
                 console.log("Dashboard: Projekt zapisany do " + result.filePath);
                 window.electronAPI.setDirty(false);
             }
+            // Przywróć focus na aktywną ramkę po zamknięciu okna dialogowego zapisu
+            const activeFrame = document.querySelector('.app-frame.active');
+            if (activeFrame) {
+                try { activeFrame.contentWindow.focus(); } catch (e) {}
+            }
             return result.success;
         } else {
             const blob = new Blob([jsonString], { type: 'application/json' });
@@ -423,7 +428,7 @@
             return true;
         }
     };
-
+ 
     window.loadProjectData = async function() {
         console.log("Dashboard: Rozpoczęcie wczytywania projektu...");
         if (window.electronAPI) {
@@ -432,7 +437,14 @@
                 try {
                     const state = JSON.parse(result.content);
                     applyProjectState(state);
-                    alert("Projekt został wczytany pomyślnie!");
+                    setTimeout(() => {
+                        alert("Projekt został wczytany pomyślnie!");
+                        // Przywróć focus na aktywną ramkę po zamknięciu alertu
+                        const activeFrame = document.querySelector('.app-frame.active');
+                        if (activeFrame) {
+                            try { activeFrame.contentWindow.focus(); } catch (e) {}
+                        }
+                    }, 150);
                     window.electronAPI.setDirty(false);
                 } catch (e) {
                     alert("Błąd wczytywania pliku projektu: " + e.message);

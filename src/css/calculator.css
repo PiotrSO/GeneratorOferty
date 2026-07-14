@@ -166,47 +166,42 @@ body {
             border: 1px solid #bae6fd;
         }
         
-        .summary-section { 
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            padding: 30px; 
-            border-radius: 16px; 
-            border: 2px solid #22c55e;
-            margin-top: 30px; 
-            display: flex; 
-            flex-direction: column;
-            align-items: center; 
-            gap: 10px; 
+        /* Styl dla nowej tabeli podsumowania parametrów oferty */
+        .param-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #cbd5e1;
+            font-size: 10pt;
         }
 
-        .summary-section label { 
-            font-size: 0.85rem; 
-            color: #166534; 
-            margin: 0; 
+        .param-summary-table th,
+        .param-summary-table td {
+            border: 1px solid #cbd5e1;
+            padding: 12px;
+            vertical-align: middle;
+        }
+
+        .param-summary-table th {
+            background: #f8fafc;
             font-weight: 700;
+            color: #475569;
+            font-size: 9pt;
+            text-transform: uppercase;
         }
 
-        .price-container {
-            display: flex;
-            align-items: baseline;
-            gap: 10px;
-        }
-        
-        #selectedPrice { 
-            font-size: 2.5rem; 
-            font-weight: 800; 
-            color: #15803d; 
-            outline: none; 
-            background: transparent;
-            border: none;
-            width: 300px;
+        .param-summary-table td.center-cell {
             text-align: center;
-            font-family: inherit;
         }
 
-        .currency-label {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #15803d;
+        .param-summary-table td.price-cell {
+            text-align: center;
+            font-weight: bold;
+            color: #0f172a;
         }
 
         .actions { 

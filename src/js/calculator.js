@@ -57,6 +57,26 @@ const rowDefinitions = [
             recalcVariants();
             saveData();
         });
+
+        const summaryTable = document.querySelector('.param-summary-table');
+        if (summaryTable) {
+            summaryTable.addEventListener('input', () => {
+                saveOfferParamsFromTable();
+            });
+
+            // Zaznaczanie całej zawartości komórki po wejściu (ułatwia nadpisywanie wartości bez kasowania)
+            summaryTable.querySelectorAll('[contenteditable="true"]').forEach(el => {
+                el.addEventListener('focus', () => {
+                    setTimeout(() => {
+                        const range = document.createRange();
+                        range.selectNodeContents(el);
+                        const selection = window.getSelection();
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }, 0);
+                });
+            });
+        }
     });
 
     function renderTable() {
@@ -183,6 +203,22 @@ const rowDefinitions = [
             const key = el.id || `v${el.dataset.variant}_r${el.dataset.rowId}`;
             data[key] = el.value;
         });
+
+        // Zapisujemy wartości z komórek edytowalnych tabeli parametrów
+        const getCellVal = (id) => {
+            const el = document.getElementById(id);
+            return el ? el.innerText.trim() : '';
+        };
+        data['summaryEveFreq'] = getCellVal('oEveFreq');
+        data['summaryEveRbh'] = getCellVal('oEveRbh');
+        data['summaryEveHours'] = getCellVal('oEveHours');
+        data['summaryEvePrice'] = getCellVal('oEvePriceVal');
+
+        data['summaryDayFreq'] = getCellVal('oDayFreq');
+        data['summaryDayRbh'] = getCellVal('oDayRbh');
+        data['summaryDayHours'] = getCellVal('oDayHours');
+        data['summaryDayPrice'] = getCellVal('oDayPriceVal');
+
         data['selectedPrice'] = document.getElementById('selectedPrice').value;
         
         AppSync.saveCalculator(data, 'calculator');
@@ -192,16 +228,179 @@ const rowDefinitions = [
     function loadData() {
         try {
             const data = AppSync.loadCalculator();
-            if (!data) return;
+            if (!data) {
+                repopulateSummaryTableFromCalculator();
+                return;
+            }
+            let hasSummaryData = false;
+
+            const safeSetCell = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id.startsWith('oEve') || id.startsWith('oDay')) {
+                        hasSummaryData = true;
+                    }
+                    if (el !== document.activeElement) {
+                        el.innerText = val;
+                    }
+                }
+            };
+
             for (const [key, val] of Object.entries(data)) {
                 if (key === 'selectedPrice') {
-                    document.getElementById('selectedPrice').value = val;
+                    if (document.getElementById('selectedPrice') !== document.activeElement) {
+                        document.getElementById('selectedPrice').value = val;
+                    }
                     continue;
                 }
+
+                // Odzyskiwanie komórek tabeli podsumowania
+                if (key === 'summaryEveFreq') { safeSetCell('oEveFreq', val); continue; }
+                if (key === 'summaryEveRbh') { safeSetCell('oEveRbh', val); continue; }
+                if (key === 'summaryEveHours') { safeSetCell('oEveHours', val); continue; }
+                if (key === 'summaryEvePrice') { safeSetCell('oEvePriceVal', val); continue; }
+
+                if (key === 'summaryDayFreq') { safeSetCell('oDayFreq', val); continue; }
+                if (key === 'summaryDayRbh') { safeSetCell('oDayRbh', val); continue; }
+                if (key === 'summaryDayHours') { safeSetCell('oDayHours', val); continue; }
+                if (key === 'summaryDayPrice') { safeSetCell('oDayPriceVal', val); continue; }
+
                 const el = document.getElementById(key) || 
                            document.querySelector(`input[data-variant="${key.split('_r')[0].substring(1)}"][data-row-id="${key.split('_r')[1]}"]`);
-                if (el) el.value = val;
+                if (el) {
+                    if (el !== document.activeElement) {
+                        el.value = val;
+                    }
+                }
             }
             recalcVariants();
+            if (!hasSummaryData) {
+                const savedSidebar = localStorage.getItem('oferta_sidebar_state');
+                let populatedFromSidebar = false;
+                if (savedSidebar) {
+                    try {
+                        const sidebarState = JSON.parse(savedSidebar);
+                        if (sidebarState.eveFreq !== undefined || sidebarState.dayFreq !== undefined) {
+                            safeSetCell('oEveFreq', sidebarState.eveFreq);
+                            safeSetCell('oEveRbh', sidebarState.eveRbh);
+                            let eveHoursVal = sidebarState.eveTime || '-';
+                            if (eveHoursVal !== '-' && !eveHoursVal.startsWith('po ')) {
+                                eveHoursVal = 'po ' + eveHoursVal;
+                            }
+                            safeSetCell('oEveHours', eveHoursVal);
+                            safeSetCell('oEvePriceVal', sidebarState.evePrice || '0,00');
+
+                            safeSetCell('oDayFreq', sidebarState.dayFreq);
+                            safeSetCell('oDayRbh', sidebarState.dayRbh);
+                            safeSetCell('oDayHours', sidebarState.dayHours);
+                            safeSetCell('oDayPriceVal', sidebarState.dayPrice || '0,00');
+                            
+                            populatedFromSidebar = true;
+                        }
+                    } catch (e) {
+                        console.error("Błąd parsowania stanu sidebar przy ładowaniu tabeli podsumowania:", e);
+                    }
+                }
+                
+                if (!populatedFromSidebar) {
+                    repopulateSummaryTableFromCalculator();
+                }
+            }
         } catch (e) { console.error(e); }
+    }
+
+    function repopulateSummaryTableFromCalculator() {
+        const getVal = (varIdx, rowId) => {
+            const input = document.querySelector(`input[data-variant="${varIdx}"][data-row-id="${rowId}"]`);
+            return input ? input.value : '';
+        };
+
+        const dayPriceVal = parseFloat((getVal(3, 13) || '0').replace(/\s/g, '').replace(',', '.')) || 0;
+        const selectedPriceVal = parseFloat(document.getElementById('selectedPrice').value.replace(/\s/g, '').replace(',', '.')) || 0;
+        const evePriceVal = Math.max(0, selectedPriceVal - dayPriceVal);
+
+        // Znajdź wariant wieczorny (0, 1, 2) najbliższy cenie wieczornej
+        let selectedVar = 0;
+        let minDiff = Infinity;
+        for (let v = 0; v <= 2; v++) {
+            const pStr = getVal(v, 13) || '0';
+            const p = parseFloat(pStr.replace(/\s/g, '').replace(',', '.')) || 0;
+            const diff = Math.abs(p - evePriceVal);
+            if (diff < minDiff) {
+                minDiff = diff;
+                selectedVar = v;
+            }
+        }
+
+        const safeSetText = (id, val) => {
+            const el = document.getElementById(id);
+            if (el && el !== document.activeElement) el.innerText = val;
+        };
+
+        safeSetText('oEveFreq', getVal(selectedVar, 2) || '5');
+        safeSetText('oEveRbh', getVal(selectedVar, 1) || '0');
+        
+        const curHours = document.getElementById('oEveHours').innerText.trim();
+        if (curHours === '-' || curHours === '' || curHours === '0') {
+            safeSetText('oEveHours', 'po 17:00');
+        }
+        safeSetText('oEvePriceVal', evePriceVal.toFixed(2).replace('.', ','));
+
+        safeSetText('oDayFreq', getVal(3, 2) || '5');
+        safeSetText('oDayRbh', getVal(3, 1) || '0');
+        
+        const curDayHours = document.getElementById('oDayHours').innerText.trim();
+        if (curDayHours === '-' || curDayHours === '' || curDayHours === '0') {
+            safeSetText('oDayHours', '8:00 do 16:00');
+        }
+        safeSetText('oDayPriceVal', dayPriceVal.toFixed(2).replace('.', ','));
+    }
+
+    function saveOfferParamsFromTable() {
+        const savedSidebar = localStorage.getItem('oferta_sidebar_state');
+        let state = {};
+        if (savedSidebar) {
+            try {
+                state = JSON.parse(savedSidebar);
+            } catch (e) {
+                state = {};
+            }
+        }
+
+        const getCellVal = (id) => {
+            const el = document.getElementById(id);
+            return el ? el.innerText.trim() : '';
+        };
+
+        // Serwis Wieczorny
+        state.eveFreq = getCellVal('oEveFreq');
+        state.eveRbh = getCellVal('oEveRbh');
+        let hoursEve = getCellVal('oEveHours');
+        if (hoursEve.startsWith('po ')) {
+            hoursEve = hoursEve.substring(3);
+        }
+        state.eveTime = hoursEve;
+        state.evePrice = getCellVal('oEvePriceVal');
+
+        // Serwis Dzienny
+        state.dayFreq = getCellVal('oDayFreq');
+        state.dayRbh = getCellVal('oDayRbh');
+        state.dayHours = getCellVal('oDayHours');
+        state.dayPrice = getCellVal('oDayPriceVal');
+
+        // Oblicz łączną cenę
+        const dayPriceVal = parseFloat(state.dayPrice.replace(/\s/g, '').replace(',', '.')) || 0;
+        const evePriceVal = parseFloat(state.evePrice.replace(/\s/g, '').replace(',', '.')) || 0;
+        const totalPrice = dayPriceVal + evePriceVal;
+        state.price = totalPrice.toFixed(2).replace('.', ',');
+
+        // Uaktualnienie ceny w polu selectedPrice w kalkulatorze
+        const priceInput = document.getElementById('selectedPrice');
+        if (priceInput) {
+            priceInput.value = state.price;
+        }
+
+        // Zapis do localStorage i wyzwolenie synchronizacji
+        localStorage.setItem('oferta_sidebar_state', JSON.stringify(state));
+        saveData();
     }

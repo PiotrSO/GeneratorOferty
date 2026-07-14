@@ -72,13 +72,43 @@
         </table>
     </div>
 
-    <div class="summary-section">
-        <label>REKOMENDOWANA CENA [NETTO / MIESIĄC]</label>
-        <div class="price-container">
-            <input type="text" id="selectedPrice" value="0.00" oninput="saveData()">
-            <span class="currency-label">PLN</span>
-        </div>
-    </div>
+    <div style="font-weight: bold; margin-bottom: 8px; font-size: 11pt; margin-top: 20px;">Podsumowanie zaakceptowanych parametrów oferty</div>
+    <table class="param-summary-table" style="width: 100%; border-collapse: collapse; margin-bottom: 25px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #cbd5e1;">
+        <thead>
+            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                <th width="30%" style="padding: 12px; text-align: left; font-weight: 700; color: #475569; font-size: 9pt; border: 1px solid #cbd5e1;"></th>
+                <th width="18%" style="padding: 12px; text-align: center; font-weight: 700; color: #475569; font-size: 9pt; border: 1px solid #cbd5e1;">DNI W TYGODNIU</th>
+                <th width="12%" style="padding: 12px; text-align: center; font-weight: 700; color: #475569; font-size: 9pt; border: 1px solid #cbd5e1;">RBH</th>
+                <th width="20%" style="padding: 12px; text-align: center; font-weight: 700; color: #475569; font-size: 9pt; border: 1px solid #cbd5e1;">GODZINY OD-DO</th>
+                <th width="20%" style="padding: 12px; text-align: center; font-weight: 700; color: #475569; font-size: 9pt; border: 1px solid #cbd5e1;">Cena miesięczna</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="row-summary-eve">
+                <td style="padding: 12px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;">Serwis Wieczorny</td>
+                <td id="oEveFreq" contenteditable="true" style="padding: 12px; text-align: center; border: 1px solid #cbd5e1; color: #334155;">-</td>
+                <td id="oEveRbh" contenteditable="true" style="padding: 12px; text-align: center; border: 1px solid #cbd5e1; color: #334155;">-</td>
+                <td id="oEveHours" contenteditable="true" style="padding: 12px; text-align: center; border: 1px solid #cbd5e1; color: #334155;">-</td>
+                <td style="padding: 12px; text-align: center; font-weight: bold; border: 1px solid #cbd5e1; color: #0f172a;"><span id="oEvePriceVal" contenteditable="true">0,00</span> PLN</td>
+            </tr>
+            <tr id="row-summary-day">
+                <td style="padding: 12px; font-weight: bold; color: #1e293b; border: 1px solid #cbd5e1;">Serwis Dzienny</td>
+                <td id="oDayFreq" contenteditable="true" style="padding: 12px; text-align: center; border: 1px solid #cbd5e1; color: #334155;">-</td>
+                <td id="oDayRbh" contenteditable="true" style="padding: 12px; text-align: center; border: 1px solid #cbd5e1; color: #334155;">-</td>
+                <td id="oDayHours" contenteditable="true" style="padding: 12px; text-align: center; border: 1px solid #cbd5e1; color: #334155;">-</td>
+                <td style="padding: 12px; text-align: center; font-weight: bold; border: 1px solid #cbd5e1; color: #0f172a;"><span id="oDayPriceVal" contenteditable="true">0,00</span> PLN</td>
+            </tr>
+            <tr style="background: #f8fafc; font-weight: bold;">
+                <td colspan="4" style="padding: 14px; text-align: center; text-transform: uppercase; border: 1px solid #cbd5e1; color: #1e293b; font-size: 10pt;">REKOMENDOWANA CENA [NETTO/MIESIĄC]</td>
+                <td style="padding: 14px; text-align: center; border: 1px solid #cbd5e1; background: #f1f5f9; vertical-align: middle;">
+                    <div style="display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+                        <input type="text" id="selectedPrice" value="0.00" readonly style="width: 100px; text-align: center; font-weight: 900; font-size: 13pt; border: none; background: transparent; color: #0284c7; padding: 0; outline: none;">
+                        <span style="font-size: 11pt; color: #475569; font-weight: 700;">PLN</span>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
     <div class="actions">
         <button class="btn-save" onclick="saveData(true)">
