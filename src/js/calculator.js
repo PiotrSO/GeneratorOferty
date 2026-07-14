@@ -222,7 +222,13 @@ const rowDefinitions = [
         data['selectedPrice'] = document.getElementById('selectedPrice').value;
         
         AppSync.saveCalculator(data, 'calculator');
-        if (showAlert) alert('Zapisano pomyślnie.');
+        if (showAlert) {
+            if (window.parent && window.parent.showToast) {
+                window.parent.showToast('Kalkulacja została zapisana pomyślnie.', 'success');
+            } else {
+                alert('Zapisano pomyślnie.');
+            }
+        }
     }
 
     function loadData() {

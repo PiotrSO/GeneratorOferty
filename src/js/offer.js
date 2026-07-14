@@ -60,7 +60,7 @@ function upd() {
         evePrice: evePriceStr
     };
     localStorage.setItem('oferta_sidebar_state', JSON.stringify(sidebarState));
-    if (window.AppSync) {
+    if (window.AppSync && !isSyncingFromCalculator) {
         window.AppSync.triggerRefresh('offer');
     }
 
@@ -282,81 +282,86 @@ function handleFileSelect(evt, imgId) {
 }
 
 // --- NOWA FUNKCJA DO ŁADOWANIA DANYCH Z KALKULATORA ---
+let isSyncingFromCalculator = false;
 function applyCalcData(calcData) {
     if (!calcData) return;
+    isSyncingFromCalculator = true;
+    try {
+        if (calcData.clientName) document.getElementById('iClient').value = calcData.clientName;
+        if (calcData.clientAddress) document.getElementById('iAddr').value = calcData.clientAddress;
+        if (calcData.objectAddress) document.getElementById('iLoc').value = calcData.objectAddress;
+        if (calcData.officeArea) document.getElementById('iArea').value = calcData.officeArea;
 
-    if (calcData.clientName) document.getElementById('iClient').value = calcData.clientName;
-    if (calcData.clientAddress) document.getElementById('iAddr').value = calcData.clientAddress;
-    if (calcData.objectAddress) document.getElementById('iLoc').value = calcData.objectAddress;
-    if (calcData.officeArea) document.getElementById('iArea').value = calcData.officeArea;
-
-    // Zmiana formatu daty z kalendarza (YYYY-MM-DD) na polski (DD.MM.YYYY)
-    if (calcData.calcDate) {
-        const d = new Date(calcData.calcDate);
-        if (!isNaN(d.getTime())) {
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            document.getElementById('iDate').value = `${day}.${month}.${d.getFullYear()}`;
-        } else {
-            document.getElementById('iDate').value = calcData.calcDate;
-        }
-    }
-
-    // Sprawdzamy czy mamy nowe dane z tabeli podsumowania w kalkulatorze
-    if (calcData.summaryEveFreq !== undefined || calcData.summaryDayFreq !== undefined) {
-        if (calcData.summaryEveFreq !== undefined) document.getElementById('iEveFreq').value = calcData.summaryEveFreq;
-        if (calcData.summaryEveRbh !== undefined) document.getElementById('iEveRbh').value = calcData.summaryEveRbh;
-        
-        if (calcData.summaryEveHours !== undefined) {
-            let eveTime = calcData.summaryEveHours;
-            if (eveTime.startsWith('po ')) {
-                eveTime = eveTime.substring(3);
+        // Zmiana formatu daty z kalendarza (YYYY-MM-DD) na polski (DD.MM.YYYY)
+        if (calcData.calcDate) {
+            const d = new Date(calcData.calcDate);
+            if (!isNaN(d.getTime())) {
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                document.getElementById('iDate').value = `${day}.${month}.${d.getFullYear()}`;
+            } else {
+                document.getElementById('iDate').value = calcData.calcDate;
             }
-            document.getElementById('iEveTime').value = eveTime;
         }
-        if (calcData.summaryEvePrice !== undefined) document.getElementById('iEvePrice').value = calcData.summaryEvePrice;
 
-        if (calcData.summaryDayFreq !== undefined) document.getElementById('iDayFreq').value = calcData.summaryDayFreq;
-        if (calcData.summaryDayRbh !== undefined) document.getElementById('iDayRbh').value = calcData.summaryDayRbh;
-        if (calcData.summaryDayHours !== undefined) document.getElementById('iDayHours').value = calcData.summaryDayHours;
-        if (calcData.summaryDayPrice !== undefined) document.getElementById('iDayPrice').value = calcData.summaryDayPrice;
+        // Sprawdzamy czy mamy nowe dane z tabeli podsumowania w kalkulatorze
+        if (calcData.summaryEveFreq !== undefined || calcData.summaryDayFreq !== undefined) {
+            if (calcData.summaryEveFreq !== undefined) document.getElementById('iEveFreq').value = calcData.summaryEveFreq;
+            if (calcData.summaryEveRbh !== undefined) document.getElementById('iEveRbh').value = calcData.summaryEveRbh;
+            
+            if (calcData.summaryEveHours !== undefined) {
+                let eveTime = calcData.summaryEveHours;
+                if (eveTime.startsWith('po ')) {
+                    eveTime = eveTime.substring(3);
+                }
+                document.getElementById('iEveTime').value = eveTime;
+            }
+            if (calcData.summaryEvePrice !== undefined) document.getElementById('iEvePrice').value = calcData.summaryEvePrice;
 
-        if (calcData.selectedPrice !== undefined) document.getElementById('iPrice').value = calcData.selectedPrice;
-    } else {
-        // Fallback dla starych danych kalkulatora
-        const totalPriceVal = calcData.selectedPrice ? parseFloat(calcData.selectedPrice.replace(',', '.')) : 0;
-        const dayPriceVal = calcData.v3_r13 ? parseFloat(calcData.v3_r13.replace(',', '.')) : 0;
-        let evePriceVal = totalPriceVal - dayPriceVal;
-        if (evePriceVal < 0) evePriceVal = 0;
+            if (calcData.summaryDayFreq !== undefined) document.getElementById('iDayFreq').value = calcData.summaryDayFreq;
+            if (calcData.summaryDayRbh !== undefined) document.getElementById('iDayRbh').value = calcData.summaryDayRbh;
+            if (calcData.summaryDayHours !== undefined) document.getElementById('iDayHours').value = calcData.summaryDayHours;
+            if (calcData.summaryDayPrice !== undefined) document.getElementById('iDayPrice').value = calcData.summaryDayPrice;
 
-        const formatPolish = (val) => val.toFixed(2).replace('.', ',');
+            if (calcData.selectedPrice !== undefined) document.getElementById('iPrice').value = calcData.selectedPrice;
+        } else {
+            // Fallback dla starych danych kalkulatora
+            const totalPriceVal = calcData.selectedPrice ? parseFloat(calcData.selectedPrice.replace(',', '.')) : 0;
+            const dayPriceVal = calcData.v3_r13 ? parseFloat(calcData.v3_r13.replace(',', '.')) : 0;
+            let evePriceVal = totalPriceVal - dayPriceVal;
+            if (evePriceVal < 0) evePriceVal = 0;
 
-        document.getElementById('iDayPrice').value = formatPolish(dayPriceVal);
-        document.getElementById('iEvePrice').value = formatPolish(evePriceVal);
-        document.getElementById('iPrice').value = formatPolish(totalPriceVal);
+            const formatPolish = (val) => val.toFixed(2).replace('.', ',');
 
-        if (calcData.v3_r1) document.getElementById('iDayRbh').value = calcData.v3_r1.replace('.', ',');
-        if (calcData.v3_r2) document.getElementById('iDayFreq').value = calcData.v3_r2;
+            document.getElementById('iDayPrice').value = formatPolish(dayPriceVal);
+            document.getElementById('iEvePrice').value = formatPolish(evePriceVal);
+            document.getElementById('iPrice').value = formatPolish(totalPriceVal);
 
-        let selectedVariant = 0;
-        let minDiff = Infinity;
-        for (let v = 0; v <= 2; v++) {
-            const vPriceKey = `v${v}_r13`;
-            if (calcData[vPriceKey]) {
-                const vPrice = parseFloat(calcData[vPriceKey].replace(',', '.'));
-                const diff = Math.abs(vPrice - evePriceVal);
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    selectedVariant = v;
+            if (calcData.v3_r1) document.getElementById('iDayRbh').value = calcData.v3_r1.replace('.', ',');
+            if (calcData.v3_r2) document.getElementById('iDayFreq').value = calcData.v3_r2;
+
+            let selectedVariant = 0;
+            let minDiff = Infinity;
+            for (let v = 0; v <= 2; v++) {
+                const vPriceKey = `v${v}_r13`;
+                if (calcData[vPriceKey]) {
+                    const vPrice = parseFloat(calcData[vPriceKey].replace(',', '.'));
+                    const diff = Math.abs(vPrice - evePriceVal);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        selectedVariant = v;
+                    }
                 }
             }
+
+            if (calcData[`v${selectedVariant}_r1`]) document.getElementById('iEveRbh').value = calcData[`v${selectedVariant}_r1`].replace('.', ',');
+            if (calcData[`v${selectedVariant}_r2`]) document.getElementById('iEveFreq').value = calcData[`v${selectedVariant}_r2`];
         }
 
-        if (calcData[`v${selectedVariant}_r1`]) document.getElementById('iEveRbh').value = calcData[`v${selectedVariant}_r1`].replace('.', ',');
-        if (calcData[`v${selectedVariant}_r2`]) document.getElementById('iEveFreq').value = calcData[`v${selectedVariant}_r2`];
+        upd(); // Odśwież widok na dokumencie
+    } finally {
+        isSyncingFromCalculator = false;
     }
-
-    upd(); // Odśwież widok na dokumencie
 }
 
 document.addEventListener('DOMContentLoaded', () => {

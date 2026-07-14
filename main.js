@@ -76,6 +76,10 @@ ipcMain.on('save-pdf', async (event, defaultName, htmlContent) => {
       filters: [{ name: 'Dokument PDF', extensions: ['pdf'] }]
     });
 
+    if (parentWin && !parentWin.isDestroyed()) {
+      parentWin.focus();
+    }
+
     if (!filePath) {
       event.sender.send('pdf-saved'); 
       return;
@@ -166,6 +170,10 @@ ipcMain.handle('save-project', async (event, projectDataString) => {
       filters: [{ name: 'Projekt System Serwis', extensions: ['ssproj', 'json'] }]
     });
 
+    if (parentWin && !parentWin.isDestroyed()) {
+      parentWin.focus();
+    }
+
     if (!filePath) {
       return { cancelled: true };
     }
@@ -187,6 +195,10 @@ ipcMain.handle('load-project', async (event) => {
       filters: [{ name: 'Projekt System Serwis', extensions: ['ssproj', 'json'] }],
       properties: ['openFile']
     });
+
+    if (parentWin && !parentWin.isDestroyed()) {
+      parentWin.focus();
+    }
 
     if (!filePaths || filePaths.length === 0) {
       return { cancelled: true };

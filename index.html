@@ -337,6 +337,43 @@
 </div>
 
 <script>
+    window.showToast = function(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.style.position = 'fixed';
+        toast.style.bottom = '80px';
+        toast.style.right = '40px';
+        toast.style.background = type === 'success' ? '#22c55e' : '#ef4444';
+        toast.style.color = 'white';
+        toast.style.padding = '12px 24px';
+        toast.style.borderRadius = '10px';
+        toast.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+        toast.style.zIndex = '99999';
+        toast.style.fontFamily = "'Outfit', sans-serif";
+        toast.style.fontSize = '0.9rem';
+        toast.style.fontWeight = '600';
+        toast.style.transition = 'all 0.3s ease';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+        
+        document.body.appendChild(toast);
+        toast.innerText = message;
+        
+        // Animacja wejścia
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+        }, 10);
+        
+        // Automatyczne ukrycie po 3 sekundach
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    };
+
     function switchApp(index, element) {
         const frames = document.querySelectorAll('.app-frame');
         frames.forEach(f => f.classList.remove('active'));
@@ -437,21 +474,14 @@
                 try {
                     const state = JSON.parse(result.content);
                     applyProjectState(state);
-                    setTimeout(() => {
-                        alert("Projekt został wczytany pomyślnie!");
-                        // Przywróć focus na aktywną ramkę po zamknięciu alertu
-                        const activeFrame = document.querySelector('.app-frame.active');
-                        if (activeFrame) {
-                            try { activeFrame.contentWindow.focus(); } catch (e) {}
-                        }
-                    }, 150);
+                    showToast("Projekt został wczytany pomyślnie!", "success");
                     window.electronAPI.setDirty(false);
                 } catch (e) {
-                    alert("Błąd wczytywania pliku projektu: " + e.message);
+                    showToast("Błąd wczytywania pliku projektu: " + e.message, "error");
                 }
             }
         } else {
-            alert("Funkcja wczytywania projektu jest dostępna w wersji desktopowej.");
+            showToast("Funkcja wczytywania projektu jest dostępna w wersji desktopowej.", "error");
         }
     };
 
