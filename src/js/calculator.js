@@ -235,7 +235,7 @@ const rowDefinitions = [
         try {
             const data = AppSync.loadCalculator();
             if (!data) {
-                repopulateSummaryTableFromCalculator();
+                applyDefaultParams(false);
                 return;
             }
             let hasSummaryData = false;
@@ -411,8 +411,8 @@ const rowDefinitions = [
         saveData();
     }
 
-    function loadDefaultParams() {
-        if (confirm("Czy chcesz wczytać domyślne, przykładowe parametry obiektu?")) {
+    function applyDefaultParams(askConfirm) {
+        if (!askConfirm || confirm("Czy chcesz wczytać domyślne, przykładowe parametry obiektu?")) {
             const setVal = (id, val) => {
                 const el = document.getElementById(id);
                 if (el) el.value = val;
@@ -430,27 +430,31 @@ const rowDefinitions = [
             setVal('vacFreq', 5);
             setVal('workFreq', 5);
             
-            const fillVariantIfEmpty = (varIdx, rate, margin, days) => {
+            const fillVariant = (varIdx, rate, margin, days) => {
                 const rateIn = document.querySelector(`input[data-row-id="4"][data-variant="${varIdx}"]`);
-                if (rateIn && (!rateIn.value || rateIn.value === '' || rateIn.value === '0')) rateIn.value = rate;
+                if (rateIn) rateIn.value = rate;
                 const marginIn = document.querySelector(`input[data-row-id="11"][data-variant="${varIdx}"]`);
-                if (marginIn && (!marginIn.value || marginIn.value === '' || marginIn.value === '0')) marginIn.value = margin;
+                if (marginIn) marginIn.value = margin;
                 const daysIn = document.querySelector(`input[data-row-id="2"][data-variant="${varIdx}"]`);
-                if (daysIn && (!daysIn.value || daysIn.value === '' || daysIn.value === '0')) daysIn.value = days;
+                if (daysIn) daysIn.value = days;
             };
             
-            fillVariantIfEmpty(0, '25.00', '15.00', '5');
-            fillVariantIfEmpty(1, '25.00', '15.00', '3');
-            fillVariantIfEmpty(2, '25.00', '15.00', '2');
-            fillVariantIfEmpty(3, '25.00', '15.00', '5'); // Serwis Dzienny
+            fillVariant(0, '25.00', '15.00', '5');
+            fillVariant(1, '25.00', '15.00', '3');
+            fillVariant(2, '25.00', '15.00', '2');
+            fillVariant(3, '25.00', '15.00', '5'); // Serwis Dzienny
             
             const hoursDayInput = document.querySelector('input[data-row-id="1"][data-variant="3"]');
-            if (hoursDayInput && (!hoursDayInput.value || hoursDayInput.value === '' || hoursDayInput.value === '0')) {
+            if (hoursDayInput) {
                 hoursDayInput.value = '8'; // 8 hours daily
             }
 
-            saveData();
+            recalcVariants();
             calculateTime();
         }
+    }
+
+    function loadDefaultParams() {
+        applyDefaultParams(true);
     }
     window.loadDefaultParams = loadDefaultParams;

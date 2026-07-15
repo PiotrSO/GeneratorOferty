@@ -436,17 +436,18 @@ document.addEventListener('DOMContentLoaded', () => {
      if (priceIncludesEl) {
          priceIncludesEl.addEventListener('input', () => {
              const savedSidebar = localStorage.getItem('oferta_sidebar_state');
+             let state = {};
              if (savedSidebar) {
                  try {
-                     const state = JSON.parse(savedSidebar);
-                     state.priceIncludes = priceIncludesEl.innerText.trim();
-                     localStorage.setItem('oferta_sidebar_state', JSON.stringify(state));
-                     if (window.parent && window.parent.electronAPI) {
-                         window.parent.electronAPI.setDirty(true);
-                     }
+                     state = JSON.parse(savedSidebar);
                  } catch (e) {
                      console.error(e);
                  }
+             }
+             state.priceIncludes = priceIncludesEl.innerText.trim();
+             localStorage.setItem('oferta_sidebar_state', JSON.stringify(state));
+             if (window.parent && window.parent.electronAPI) {
+                 window.parent.electronAPI.setDirty(true);
              }
          });
      }

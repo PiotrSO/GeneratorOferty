@@ -377,6 +377,11 @@
         }, 3000);
     };
 
+    if (sessionStorage.getItem('show_reset_toast') === 'true') {
+        sessionStorage.removeItem('show_reset_toast');
+        window.showToast("Przywrócono domyślne wartości dla całej aplikacji!", "success");
+    }
+
     function switchApp(index, element) {
         const frames = document.querySelectorAll('.app-frame');
         frames.forEach(f => f.classList.remove('active'));
@@ -531,8 +536,8 @@
             localStorage.removeItem('oferta_images_state');
             localStorage.removeItem('admin_system_config');
             
-            window.forceRefreshAll();
-            showToast("Przywrócono domyślne wartości dla całej aplikacji!", "success");
+            sessionStorage.setItem('show_reset_toast', 'true');
+            window.location.reload();
         }
     };
 
