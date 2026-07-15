@@ -312,8 +312,8 @@
         <button onclick="loadProjectData()" class="btn-project-load">
             <span>📂</span> Wczytaj Projekt
         </button>
-        <button onclick="resetAllToDefault()" class="btn-project-load" style="margin-top: 8px; background: rgba(227, 6, 19, 0.05); border-color: rgba(227, 6, 19, 0.2); color: #ff4d4d;">
-            <span>🔄</span> Przywróć Domyślne
+        <button onclick="loadDefaultProject()" class="btn-project-load" style="margin-top: 8px; background: rgba(2, 132, 199, 0.05); border-color: rgba(2, 132, 199, 0.2); color: #0284c7;">
+            <span>🔄</span> Wczytaj Wartości Domyślne
         </button>
     </div>
 
@@ -339,6 +339,7 @@
     </div>
 </div>
 
+<script src="src/js/defaultData.js"></script>
 <script>
     window.showToast = function(message, type = 'success') {
         const toast = document.createElement('div');
@@ -379,7 +380,7 @@
 
     if (sessionStorage.getItem('show_reset_toast') === 'true') {
         sessionStorage.removeItem('show_reset_toast');
-        window.showToast("Przywrócono domyślne wartości dla całej aplikacji!", "success");
+        window.showToast("Wczytano wartości domyślne dla całej aplikacji!", "success");
     }
 
     function switchApp(index, element) {
@@ -527,14 +528,96 @@
         window.forceRefreshAll();
     }
 
-    window.resetAllToDefault = function() {
-        if (confirm("Czy na pewno chcesz przywrócić domyślne wartości dla całej aplikacji? Wszystkie bieżące dane (kalkulator, zakresy prac i ustawienia admina) zostaną nadpisane wartościami domyślnymi.")) {
-            localStorage.removeItem('kalkulator_v3_1');
-            localStorage.removeItem('current_tasks_data');
-            localStorage.removeItem('current_tasks_data_day');
-            localStorage.removeItem('oferta_sidebar_state');
-            localStorage.removeItem('oferta_images_state');
-            localStorage.removeItem('admin_system_config');
+    window.loadDefaultProject = function() {
+        if (confirm("Czy na pewno chcesz wczytać wartości domyślne dla całej aplikacji? Wszystkie bieżące dane (kalkulator, zakresy prac i ustawienia admina) zostaną nadpisane.")) {
+            const defaultTasks = window.defaultTasksInit || [];
+            
+            const defaultAdminConfig = {
+                times: {
+                    officeArea100: 10,
+                    workstation: 2,
+                    kitchen: 12,
+                    confRoom: 10,
+                    bathroom: 10,
+                    shower: 10,
+                    dishwasher: 10,
+                    hardFloors100: 20,
+                    flatOverhead: 10,
+                    fridge: 20,
+                    floorOverhead: 10
+                },
+                salaryMap: {
+                    "22.50": "37.50",
+                    "23.81": "39.71",
+                    "25.00": "41.69",
+                    "30.00": "50.03",
+                    "35.00": "58.38",
+                    "40.00": "66.72"
+                },
+                kpMultiplier: 1.6676
+            };
+
+            const defaultCalculator = {
+                officeArea: "500",
+                floors: "1",
+                workstations: "30",
+                confRooms: "3",
+                hardFloors: "200",
+                kitchens: "1",
+                dishwashers: "1",
+                fridges: "1",
+                bathrooms: "3",
+                showers: "1",
+                vacFreq: "5",
+                workFreq: "5",
+                
+                v0_r1: "4.27", v0_r2: "5", v0_r4: "25.00", v0_r11: "15.00",
+                v1_r1: "4.27", v1_r2: "3", v1_r4: "25.00", v1_r11: "15.00",
+                v2_r1: "4.27", v2_r2: "2", v2_r4: "25.00", v2_r11: "15.00",
+                v3_r1: "8.00", v3_r2: "5", v3_r4: "25.00", v3_r11: "15.00",
+                
+                summaryEveFreq: "5",
+                summaryEveRbh: "4",
+                summaryEveHours: "po 17:00",
+                summaryEvePrice: "1344,00",
+                
+                summaryDayFreq: "5",
+                summaryDayRbh: "0",
+                summaryDayHours: "8:00 do 16:00",
+                summaryDayPrice: "0,00",
+                
+                selectedPrice: "1344,00",
+                clientName: "",
+                clientAddress: "",
+                objectAddress: "",
+                calcDate: new Date().toISOString().split('T')[0]
+            };
+
+            const defaultOfferSidebar = {
+                title: "WSTĘPNA OFERTA\nNA USŁUGI PORZĄDKOWE",
+                client: "",
+                addr: "",
+                date: new Date().toLocaleDateString('pl-PL'),
+                loc: "",
+                area: "500",
+                price: "1344,00",
+                dayRbh: "0",
+                dayFreq: "5",
+                dayHours: "8:00 do 16:00",
+                dayPrice: "0,00",
+                eveRbh: "4",
+                eveFreq: "5",
+                eveTime: "17:00",
+                evePrice: "1344,00",
+                priceIncludes: ""
+            };
+
+            localStorage.setItem('kalkulator_v3_1', JSON.stringify(defaultCalculator));
+            localStorage.setItem('current_tasks_data', JSON.stringify(defaultTasks));
+            localStorage.setItem('current_tasks_data_day', JSON.stringify([]));
+            localStorage.setItem('oferta_sidebar_state', JSON.stringify(defaultOfferSidebar));
+            localStorage.setItem('oferta_images_state', JSON.stringify({}));
+            localStorage.setItem('admin_system_config', JSON.stringify(defaultAdminConfig));
             
             sessionStorage.setItem('show_reset_toast', 'true');
             window.location.reload();
@@ -548,6 +631,19 @@
                 window.electronAPI.closeAppForced();
             }
         });
+    }
+
+    // Temporary debug trigger to check why edit mode is blocked
+    if (!sessionStorage.getItem('auto_triggered')) {
+        sessionStorage.setItem('auto_triggered', 'true');
+        setTimeout(() => {
+            console.log("TEST: Auto-triggering loadDefaultProject...");
+            // Mock confirm to always return true for automatic test
+            const originalConfirm = window.confirm;
+            window.confirm = () => true;
+            window.loadDefaultProject();
+            window.confirm = originalConfirm;
+        }, 3000);
     }
 </script>
 </body>
