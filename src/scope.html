@@ -11,19 +11,7 @@
 </head>
 <body>
 
-    <div class="toolbar">
-        <button class="btn-add" onclick="addTask()"><span>➕</span> Dodaj czynność (Prace)</button>
-        <button class="btn-add" onclick="addTaskDay()"><span>➕</span> Dodaj czynność (Serwis Dzienny)</button>
-        <button class="btn-save" onclick="manualSync()"><span>💾</span> Zapisz do Oferty</button>
-        <button class="btn-load">
-            <span>📂</span> Wczytaj kopię
-            <input type="file" id="file-loader" accept=".json" onchange="loadData(this)">
-        </button>
-        <button class="btn-reset" onclick="resetToDefault()"><span>🔄</span> Resetuj (Prace)</button>
-        <button class="btn-reset" onclick="resetToDefaultDay()"><span>🔄</span> Resetuj (Serwis Dzienny)</button>
-        <button class="btn-jpg" onclick="generateJPG()"><span>📷</span> Pobierz JPG (Prace)</button>
-        <button class="btn-jpg" onclick="generateJPGDay()"><span>📷</span> Pobierz JPG (Serwis Dzienny)</button>
-    </div>
+
 
     <div class="main-wrapper" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
         <!-- LEWY PANEL: DWA EDYTORY -->
