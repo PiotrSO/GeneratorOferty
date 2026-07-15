@@ -20,38 +20,6 @@
     <div class="sidebar">
         <h2 style="color:white; margin-bottom:15px;">Zarządzanie</h2>
 
-        <!-- PRZYCISK RESETU - MAKSYMALNA WIDOCZNOŚĆ -->
-        <button id="btn-reset-top" onclick="resetImages()"
-            style="width:100%; padding:20px; background:var(--primary-red); color:white; border:none; margin-bottom:20px; font-size:16px; font-weight:900; cursor:pointer; border-radius:8px; box-shadow: 0 4px 15px rgba(228,35,19,0.5); text-transform:uppercase; animation: pulse 2s infinite;">
-            NAPRAW / RESETUJ GRAFIKI
-        </button>
-
-        <!-- PANEL DIAGNOSTYCZNY -->
-        <div style="background:#1a252f; padding:10px; border-radius:5px; margin-bottom:20px; border:1px solid #444;">
-            <div style="font-size:10px; color:#f1c40f; font-weight:bold; text-transform:uppercase; margin-bottom:5px;">
-                Status Systemu</div>
-            <div id="diag-status" style="font-family:monospace; font-size:9px; color:#aaa; line-height:1.2;">
-                Inicjalizacja...</div>
-        </div>
-
-        <div class="img-uploader" style="border-color: #27ae60;">
-            <span style="color:#27ae60; font-weight:bold;">Wczytaj Zakres Prac (.json)</span>
-            <div style="font-size:9px; color:#aaa; margin-bottom:5px;">Plik z Generatora Zakresów</div>
-            <input type="file" accept=".json" onchange="loadTasksJSON(this)" class="file-input">
-        </div>
-
-        <hr style="border:0; border-top:1px solid #555; margin:10px 0;">
-
-        <div class="img-uploader"><span>1. Str 4 Lewy (Ceraco)</span><input type="file" id="f_ref1" accept="image/*"
-                class="file-input"></div>
-        <div class="img-uploader"><span>2. Str 4 Prawy (MediaMarkt)</span><input type="file" id="f_ref2"
-                accept="image/*" class="file-input"></div>
-        <div class="img-uploader"><span>3-6. Skany Str 5</span>
-            <input type="file" id="f_ref3" class="file-input"><input type="file" id="f_ref4" class="file-input"><input
-                type="file" id="f_ref5" class="file-input"><input type="file" id="f_ref6" class="file-input">
-        </div>
-        <hr style="border:0; border-top:1px solid #555; margin:10px 0;">
-
         <div class="form-group"><label>Tytuł Oferty</label><textarea id="iTitle" rows="3"
                 oninput="upd()">WSTĘPNA OFERTA&#10;NA USŁUGI PORZĄDKOWE</textarea></div>
         <div class="form-group"><label>Nazwa Klienta</label><input type="text" id="iClient" placeholder="np. Firma XYZ"

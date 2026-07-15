@@ -216,6 +216,53 @@
             50% { transform: translateX(6px); }
             75% { transform: translateX(-3px); }
         }
+
+        .img-uploader {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+        .file-input {
+            font-size: 0.8rem;
+            max-width: 250px;
+            cursor: pointer;
+        }
+        .btn-reset-graphics {
+            width: 100%;
+            padding: 15px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            margin-bottom: 20px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            border-radius: 8px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-reset-graphics:hover:not(:disabled) {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+        .btn-reset-graphics:disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
@@ -320,6 +367,45 @@
         </div>
     </div>
 
+    <div class="card">
+        <h2>Zarządzanie Plikami i Grafiką (Wymaga odblokowania edycji)</h2>
+        
+        <!-- PRZYCISK RESETU -->
+        <button id="btn-reset-top" class="btn-reset-graphics admin-editable" onclick="resetImagesAdmin()">
+            <span>🔄</span> Napraw / Resetuj Grafiki do Domyślnych
+        </button>
+
+        <!-- PANEL DIAGNOSTYCZNY -->
+        <div style="background:#f8fafc; padding:15px; border-radius:10px; margin-bottom:20px; border:1px solid var(--border-color);">
+            <div style="font-size:10px; color:#e30613; font-weight:bold; text-transform:uppercase; margin-bottom:5px;">
+                Status Systemu</div>
+            <div id="diag-status" style="font-family:monospace; font-size:9.5px; color:var(--text-muted); line-height:1.4;">
+                Inicjalizacja...</div>
+        </div>
+
+        <!-- WCZYTYWANIE ZAKRESU PRAC -->
+        <div class="img-uploader" style="border-color: #22c55e;">
+            <span style="color:#22c55e; font-weight:bold;">Wczytaj Zakres Prac (.json)</span>
+            <input type="file" accept=".json" onchange="loadTasksJSONAdmin(this)" class="file-input admin-editable">
+        </div>
+
+        <div style="margin: 20px 0; border-top: 1px solid var(--border-color);"></div>
+        <h3 style="font-size: 0.95rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 15px;">Wgraj Skany Referencji i Załączników</h3>
+
+        <div class="img-uploader"><span>1. Str 4 Lewy (Ceraco)</span><input type="file" onchange="handleFileSelectAdmin(event, 'ref1')" accept="image/*" class="file-input admin-editable"></div>
+        <div class="img-uploader"><span>2. Str 4 Prawy (MediaMarkt)</span><input type="file" onchange="handleFileSelectAdmin(event, 'ref2')" accept="image/*" class="file-input admin-editable"></div>
+        
+        <div class="img-uploader" style="flex-direction: column; align-items: stretch; gap: 10px;">
+            <span style="align-self: flex-start;">3-6. Skany Str 5 (Załączniki)</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;">
+                <input type="file" onchange="handleFileSelectAdmin(event, 'ref3')" accept="image/*" class="file-input admin-editable">
+                <input type="file" onchange="handleFileSelectAdmin(event, 'ref4')" accept="image/*" class="file-input admin-editable">
+                <input type="file" onchange="handleFileSelectAdmin(event, 'ref5')" accept="image/*" class="file-input admin-editable">
+                <input type="file" onchange="handleFileSelectAdmin(event, 'ref6')" accept="image/*" class="file-input admin-editable">
+            </div>
+        </div>
+    </div>
+
     <div class="actions">
         <button onclick="saveConfig()" class="btn-action btn-save">
             <span>💾</span> Zapisz Ustawienia
@@ -411,6 +497,19 @@
 
         // 5. Odśwież tabelę stawek
         renderRatesTable();
+
+        // 6. Zablokuj/Odblokuj przyciski i uploady plików
+        document.querySelectorAll('.admin-editable').forEach(el => {
+            if (enabled) {
+                el.removeAttribute('disabled');
+                el.style.opacity = '1';
+                el.style.pointerEvents = 'auto';
+            } else {
+                el.setAttribute('disabled', 'true');
+                el.style.opacity = '0.5';
+                el.style.pointerEvents = 'none';
+            }
+        });
     }
 
     function unlockEditor() {
@@ -469,7 +568,101 @@
 
         // Synchronizuj obecny stan edycji (zablokowany przy nowym wczytaniu/load)
         setEditMode(isEditingUnlocked);
+
+        // Zaktualizuj status wczytanych mediów
+        updateDiagStatus();
     }
+
+    function updateDiagStatus() {
+        const diag = document.getElementById('diag-status');
+        if (!diag) return;
+        diag.innerHTML = '';
+        const log = (msg) => diag.innerHTML += msg + '<br>';
+        
+        log("Połączenie z bazą: OK");
+        const saved = localStorage.getItem('oferta_images_state');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                const count = Object.keys(parsed).filter(k => parsed[k] && parsed[k].startsWith('data:')).length;
+                log(`Wczytane własne grafiki użytkownika: ${count}/9`);
+            } catch(e) {
+                log("Błąd odczytu stanu grafik");
+            }
+        } else {
+            log("Używane są domyślne grafiki systemowe.");
+        }
+    }
+
+    function handleFileSelectAdmin(evt, imgId) {
+        const file = evt.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            let state = {};
+            const saved = localStorage.getItem('oferta_images_state');
+            if (saved) {
+                try { state = JSON.parse(saved); } catch (err) {}
+            }
+            state[imgId] = e.target.result;
+            localStorage.setItem('oferta_images_state', JSON.stringify(state));
+            
+            updateDiagStatus();
+            
+            // Wyzwól odświeżenie oferty, aby wczytała zaktualizowany stan obrazów
+            if (window.AppSync) {
+                window.AppSync.triggerRefresh('admin');
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function resetImagesAdmin() {
+        if (confirm("UWAGA: Wszystkie własne zmiany zostaną usunięte. Czy na pewno chcesz zresetować grafiki?")) {
+            localStorage.removeItem('oferta_images_state');
+            localStorage.setItem('oferta_images_ver', '5');
+            
+            updateDiagStatus();
+            
+            // Przeładuj ramkę oferty, aby wczytać domyślne grafiki z kodu HTML
+            if (window.parent && window.parent.document) {
+                const frameOferta = window.parent.document.getElementById('app-2');
+                if (frameOferta) {
+                    frameOferta.contentWindow.location.reload();
+                }
+            }
+            
+            if (window.AppSync) {
+                window.AppSync.triggerRefresh('admin');
+            }
+        }
+    }
+
+    function loadTasksJSONAdmin(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (Array.isArray(data) && data.every(item => item && typeof item.name === 'string')) {
+                    AppSync.saveTasks(data, 'admin');
+                    alert("Zakres prac wczytany pomyślnie i zsynchronizowany z ofertą!");
+                } else {
+                    alert("Nieprawidłowy format pliku JSON z zadaniami.");
+                }
+            } catch (err) {
+                alert("Błąd odczytu lub przetwarzania pliku JSON.");
+            }
+        };
+        reader.readAsText(file);
+        input.value = '';
+    }
+
+    window.handleFileSelectAdmin = handleFileSelectAdmin;
+    window.resetImagesAdmin = resetImagesAdmin;
+    window.loadTasksJSONAdmin = loadTasksJSONAdmin;
+    window.updateDiagStatus = updateDiagStatus;
 
     function renderRatesTable() {
         const tbody = document.querySelector('#ratesTable tbody');
