@@ -312,6 +312,9 @@
         <button onclick="loadProjectData()" class="btn-project-load">
             <span>📂</span> Wczytaj Projekt
         </button>
+        <button onclick="resetAllToDefault()" class="btn-project-load" style="margin-top: 8px; background: rgba(227, 6, 19, 0.05); border-color: rgba(227, 6, 19, 0.2); color: #ff4d4d;">
+            <span>🔄</span> Przywróć Domyślne
+        </button>
     </div>
 
     <div class="sidebar-footer">
@@ -518,6 +521,20 @@
         
         window.forceRefreshAll();
     }
+
+    window.resetAllToDefault = function() {
+        if (confirm("Czy na pewno chcesz przywrócić domyślne wartości dla całej aplikacji? Wszystkie bieżące dane (kalkulator, zakresy prac i ustawienia admina) zostaną nadpisane wartościami domyślnymi.")) {
+            localStorage.removeItem('kalkulator_v3_1');
+            localStorage.removeItem('current_tasks_data');
+            localStorage.removeItem('current_tasks_data_day');
+            localStorage.removeItem('oferta_sidebar_state');
+            localStorage.removeItem('oferta_images_state');
+            localStorage.removeItem('admin_system_config');
+            
+            window.forceRefreshAll();
+            showToast("Przywrócono domyślne wartości dla całej aplikacji!", "success");
+        }
+    };
 
     if (window.electronAPI) {
         window.electronAPI.onTriggerSaveOnClose(async () => {

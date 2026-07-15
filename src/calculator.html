@@ -47,12 +47,15 @@
             <div class="input-item"><label>Odkurzanie [dni/tydz]</label><input type="number" id="vacFreq" oninput="saveData()"></div>
             <div class="input-item"><label>Stanowiska [dni/tydz]</label><input type="number" id="workFreq" oninput="saveData()"></div>
         </div>
-        <div style="margin-top: 25px;">
-            <button class="btn-calc" onclick="calculateTime()">
+        <div style="margin-top: 25px; display: flex; gap: 15px;">
+            <button class="btn-calc" onclick="calculateTime()" style="flex: 2; margin: 0;">
                 <span>⚡</span> Przelicz czas i wstaw do tabeli
             </button>
-            <div id="cleaningTimeResult"></div>
+            <button class="btn-save" onclick="loadDefaultParams()" style="flex: 1; height: 50px; justify-content: center; font-size: 0.95rem; background-color: #64748b; margin: 0;">
+                <span>🔄</span> Domyślne
+            </button>
         </div>
+        <div id="cleaningTimeResult"></div>
     </div>
 
     <div class="card" style="overflow-x: auto;">

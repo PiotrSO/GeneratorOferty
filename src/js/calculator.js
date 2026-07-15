@@ -410,3 +410,47 @@ const rowDefinitions = [
         localStorage.setItem('oferta_sidebar_state', JSON.stringify(state));
         saveData();
     }
+
+    function loadDefaultParams() {
+        if (confirm("Czy chcesz wczytać domyślne, przykładowe parametry obiektu?")) {
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val;
+            };
+            setVal('officeArea', 500);
+            setVal('floors', 1);
+            setVal('workstations', 30);
+            setVal('confRooms', 3);
+            setVal('hardFloors', 200);
+            setVal('kitchens', 1);
+            setVal('dishwashers', 1);
+            setVal('fridges', 1);
+            setVal('bathrooms', 3);
+            setVal('showers', 1);
+            setVal('vacFreq', 5);
+            setVal('workFreq', 5);
+            
+            const fillVariantIfEmpty = (varIdx, rate, margin, days) => {
+                const rateIn = document.querySelector(`input[data-row-id="4"][data-variant="${varIdx}"]`);
+                if (rateIn && (!rateIn.value || rateIn.value === '' || rateIn.value === '0')) rateIn.value = rate;
+                const marginIn = document.querySelector(`input[data-row-id="11"][data-variant="${varIdx}"]`);
+                if (marginIn && (!marginIn.value || marginIn.value === '' || marginIn.value === '0')) marginIn.value = margin;
+                const daysIn = document.querySelector(`input[data-row-id="2"][data-variant="${varIdx}"]`);
+                if (daysIn && (!daysIn.value || daysIn.value === '' || daysIn.value === '0')) daysIn.value = days;
+            };
+            
+            fillVariantIfEmpty(0, '25.00', '15.00', '5');
+            fillVariantIfEmpty(1, '25.00', '15.00', '3');
+            fillVariantIfEmpty(2, '25.00', '15.00', '2');
+            fillVariantIfEmpty(3, '25.00', '15.00', '5'); // Serwis Dzienny
+            
+            const hoursDayInput = document.querySelector('input[data-row-id="1"][data-variant="3"]');
+            if (hoursDayInput && (!hoursDayInput.value || hoursDayInput.value === '' || hoursDayInput.value === '0')) {
+                hoursDayInput.value = '8'; // 8 hours daily
+            }
+
+            saveData();
+            calculateTime();
+        }
+    }
+    window.loadDefaultParams = loadDefaultParams;

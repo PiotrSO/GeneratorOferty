@@ -26,14 +26,20 @@
         <div style="display: flex; flex-direction: column; gap: 30px;">
             <!-- EDYTOR 1: ZAKRESY PRAC PORZĄDKOWYCH -->
             <div class="card">
-                <div class="card-title">1. Zakres Prac Porządkowych</div>
+                <div class="card-title">
+                    <span>1. Zakres Prac Porządkowych</span>
+                    <button class="btn-reset" onclick="resetToDefault()">🔄 Domyślne</button>
+                </div>
                 <div id="editor-list"></div>
                 <button class="btn-add" style="width:100%; margin-top:20px; justify-content: center;" onclick="addTask()">Dodaj czynność</button>
             </div>
 
             <!-- EDYTOR 2: ZAKRESY SERWISU DZIENNEGO -->
             <div class="card" id="card-daytime-editor">
-                <div class="card-title">2. Zakresy Czynności Serwisu Dziennego</div>
+                <div class="card-title">
+                    <span>2. Zakresy Czynności Serwisu Dziennego</span>
+                    <button class="btn-reset" onclick="resetToDefaultDay()">🔄 Domyślne</button>
+                </div>
                 <div id="editor-list-day"></div>
                 <button class="btn-add" style="width:100%; margin-top:20px; justify-content: center;" onclick="addTaskDay()">Dodaj czynność</button>
             </div>
