@@ -2,6 +2,13 @@
         let appDataDay = JSON.parse(JSON.stringify(window.defaultFullData));
 
         function init() {
+            const showDaytime = localStorage.getItem('show_daytime_tasks') !== 'false';
+            const toggleInput = document.getElementById('toggle-day-tasks');
+            if (toggleInput) {
+                toggleInput.checked = showDaytime;
+            }
+            updateDaytimeVisibility(showDaytime);
+
             const parsedData = AppSync.loadTasks();
             const parsedDataDay = localStorage.getItem('current_tasks_data_day');
             
@@ -31,6 +38,26 @@
             }
             renderAll();
         }
+
+        function updateDaytimeVisibility(showDaytime) {
+            const editorCard = document.getElementById('card-daytime-editor');
+            const previewCard = document.getElementById('canvas-target-day');
+            if (editorCard) {
+                editorCard.style.display = showDaytime ? 'block' : 'none';
+            }
+            if (previewCard) {
+                previewCard.style.display = showDaytime ? 'block' : 'none';
+            }
+        }
+
+        function toggleDaytimeTasks(checked) {
+            localStorage.setItem('show_daytime_tasks', checked ? 'true' : 'false');
+            updateDaytimeVisibility(checked);
+            if (window.AppSync) {
+                window.AppSync.triggerRefresh('scope');
+            }
+        }
+        window.toggleDaytimeTasks = toggleDaytimeTasks;
 
         function renderAll() { renderEditor(); renderEditorDay(); renderPreview(); renderPreviewDay(); }
 

@@ -205,13 +205,17 @@ function renderTasksTableDay() {
 // --- DYNAMICZNA NUMERACJA STRON ---
 function updatePageNumbers() {
     let hasDayTasks = false;
-    tasksDataDay.forEach(task => {
-        if ((task.biuro && task.biuro !== '0') ||
-            (task.kuchnia && task.kuchnia !== '0') ||
-            (task.wc && task.wc !== '0')) {
-            hasDayTasks = true;
-        }
-    });
+    const showDaytime = localStorage.getItem('show_daytime_tasks') !== 'false';
+    
+    if (showDaytime) {
+        tasksDataDay.forEach(task => {
+            if ((task.biuro && task.biuro !== '0') ||
+                (task.kuchnia && task.kuchnia !== '0') ||
+                (task.wc && task.wc !== '0')) {
+                hasDayTasks = true;
+            }
+        });
+    }
 
     const pageDay = document.getElementById('page-daytime-tasks');
     if (pageDay) {
@@ -491,6 +495,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (e.key === 'oferta_images_state') {
             restoreImages();
+        }
+        if (e.key === 'show_daytime_tasks') {
+            updatePageNumbers();
         }
     });
 

@@ -13,6 +13,14 @@
 
 
 
+    <!-- KONTROLER SEKCJI -->
+    <div class="control-panel" style="width: 100%; max-width: 1600px; margin: 0 auto 25px auto; display: flex; justify-content: flex-start; box-sizing: border-box;">
+        <label class="switch-container" style="display: flex; align-items: center; gap: 12px; background: white; padding: 15px 25px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); cursor: pointer; user-select: none; font-weight: 600; font-size: 0.95rem; color: var(--text-dark);">
+            <input type="checkbox" id="toggle-day-tasks" onchange="toggleDaytimeTasks(this.checked)" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary);">
+            <span>Generuj zakres Czynności Serwisu Dziennego</span>
+        </label>
+    </div>
+
     <div class="main-wrapper" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
         <!-- LEWY PANEL: DWA EDYTORY -->
         <div style="display: flex; flex-direction: column; gap: 30px;">
@@ -24,7 +32,7 @@
             </div>
 
             <!-- EDYTOR 2: ZAKRESY SERWISU DZIENNEGO -->
-            <div class="card">
+            <div class="card" id="card-daytime-editor">
                 <div class="card-title">2. Zakresy Czynności Serwisu Dziennego</div>
                 <div id="editor-list-day"></div>
                 <button class="btn-add" style="width:100%; margin-top:20px; justify-content: center;" onclick="addTaskDay()">Dodaj czynność</button>
