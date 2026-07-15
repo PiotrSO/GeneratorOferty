@@ -9,7 +9,7 @@
                 appData = parsedData;
             } else {
                 appData = JSON.parse(JSON.stringify(window.defaultFullData));
-                syncToApp();
+                syncToApp('scope');
             }
             
             if (parsedDataDay) {
@@ -19,15 +19,15 @@
                         appDataDay = parsedDay;
                     } else {
                         appDataDay = JSON.parse(JSON.stringify(window.defaultFullData));
-                        syncToAppDay();
+                        syncToAppDay('scope');
                     }
                 } catch (e) {
                     appDataDay = JSON.parse(JSON.stringify(window.defaultFullData));
-                    syncToAppDay();
+                    syncToAppDay('scope');
                 }
             } else {
                 appDataDay = JSON.parse(JSON.stringify(window.defaultFullData));
-                syncToAppDay();
+                syncToAppDay('scope');
             }
             renderAll();
         }
@@ -148,8 +148,8 @@
 
         // ===== SYNCHRONIZACJA TABELA 1 =====
         function syncToApp(source) { AppSync.saveTasks(appData, source); }
-        function manualSync() { syncToApp(); syncToAppDay(); alert("Zsynchronizowano z ofertą."); }
-        function resetToDefault() { if(confirm("Reset do domyślnych?")) { appData = JSON.parse(JSON.stringify(window.defaultFullData)); renderAll(); syncToApp(); } }
+        function manualSync() { syncToApp('scope'); syncToAppDay('scope'); alert("Zsynchronizowano z ofertą."); }
+        function resetToDefault() { if(confirm("Reset do domyślnych?")) { appData = JSON.parse(JSON.stringify(window.defaultFullData)); renderAll(); syncToApp('scope'); } }
         
         function updateName(idx, val) { appData[idx].name = val; renderPreview(); syncToApp('scope'); }
         function updateVal(idx, field, val) { appData[idx][field] = val; renderAll(); syncToApp('scope'); }
@@ -159,7 +159,7 @@
 
         // ===== SYNCHRONIZACJA TABELA 2 =====
         function syncToAppDay(source) { AppSync.saveTasksDay(appDataDay, source); }
-        function resetToDefaultDay() { if(confirm("Reset do domyślnych?")) { appDataDay = JSON.parse(JSON.stringify(window.defaultFullData)); renderAll(); syncToAppDay(); } }
+        function resetToDefaultDay() { if(confirm("Reset do domyślnych?")) { appDataDay = JSON.parse(JSON.stringify(window.defaultFullData)); renderAll(); syncToAppDay('scope'); } }
         
         function updateNameDay(idx, val) { appDataDay[idx].name = val; renderPreviewDay(); syncToAppDay('scope'); }
         function updateValDay(idx, field, val) { appDataDay[idx][field] = val; renderAll(); syncToAppDay('scope'); }
@@ -176,7 +176,7 @@
                     if (Array.isArray(data) && data.every(item => item && typeof item.name === 'string')) {
                         appData = data; 
                         renderAll(); 
-                        syncToApp(); 
+                        syncToApp('scope'); 
                     } else {
                         alert("Nieprawidłowy format pliku JSON z zadaniami.");
                     }

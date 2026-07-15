@@ -397,33 +397,55 @@
     }
 
     window.forceRefreshAll = function(excludeSource) {
-        console.log("Dashboard: Synchronizacja danych (wykluczenie: " + excludeSource + ")...");
+        console.log("Dashboard: Synchronizacja danych (źródło: " + excludeSource + ")...");
         
         if (excludeSource && window.electronAPI) {
             window.electronAPI.setDirty(true);
         }
         
-        // Sync Calculator
         const frameCena = document.getElementById('app-0');
-        if (frameCena && frameCena.contentWindow && frameCena.contentWindow.loadData && excludeSource !== 'calculator') {
+        const frameScope = document.getElementById('app-1');
+        const frameOferta = document.getElementById('app-2');
+        const frameAdmin = document.getElementById('app-3');
+
+        // Określenie co wymaga synchronizacji na podstawie źródła zmiany
+        let syncCena = false;
+        let syncScope = false;
+        let syncOferta = false;
+        let syncAdmin = false;
+
+        if (!excludeSource) {
+            // Pełna synchronizacja (np. wczytanie projektu)
+            syncCena = true;
+            syncScope = true;
+            syncOferta = true;
+            syncAdmin = true;
+        } else if (excludeSource === 'scope') {
+            // Zmiany w zakresie prac wpływają tylko na ofertę końcową
+            syncOferta = true;
+        } else if (excludeSource === 'calculator') {
+            // Zmiany w kalkulatorze wpływają tylko na ofertę końcową
+            syncOferta = true;
+        } else if (excludeSource === 'offer') {
+            // Zmiany w ofercie (nadpisania w panelu bocznym) wpływają na kalkulator
+            syncCena = true;
+        } else if (excludeSource === 'admin') {
+            // Zmiany w ustawieniach admina wpływają na stawkę w kalkulatorze i końcową ofertę
+            syncCena = true;
+            syncOferta = true;
+        }
+
+        // Wykonaj rzeczywistą synchronizację dla wybranych ramek
+        if (syncCena && frameCena && frameCena.contentWindow && frameCena.contentWindow.loadData) {
             frameCena.contentWindow.loadData();
         }
-
-        // Sync Scope
-        const frameScope = document.getElementById('app-1');
-        if (frameScope && frameScope.contentWindow && frameScope.contentWindow.refreshTasks && excludeSource !== 'scope') {
+        if (syncScope && frameScope && frameScope.contentWindow && frameScope.contentWindow.refreshTasks) {
             frameScope.contentWindow.refreshTasks();
         }
-
-        // Sync Offer
-        const frameOferta = document.getElementById('app-2');
-        if (frameOferta && frameOferta.contentWindow && frameOferta.contentWindow.syncData && excludeSource !== 'offer') {
+        if (syncOferta && frameOferta && frameOferta.contentWindow && frameOferta.contentWindow.syncData) {
             frameOferta.contentWindow.syncData();
         }
-
-        // Sync Admin Settings
-        const frameAdmin = document.getElementById('app-3');
-        if (frameAdmin && frameAdmin.contentWindow && frameAdmin.contentWindow.loadAdminConfig && excludeSource !== 'admin') {
+        if (syncAdmin && frameAdmin && frameAdmin.contentWindow && frameAdmin.contentWindow.loadAdminConfig) {
             frameAdmin.contentWindow.loadAdminConfig();
         }
     };

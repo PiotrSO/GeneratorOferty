@@ -57,7 +57,8 @@ function upd() {
         eveRbh: getValue('iEveRbh', '0'),
         eveFreq: eveFreq,
         eveTime: eveTime,
-        evePrice: evePriceStr
+        evePrice: evePriceStr,
+        priceIncludes: document.getElementById('oPriceIncludes') ? document.getElementById('oPriceIncludes').innerText.trim() : ''
     };
     localStorage.setItem('oferta_sidebar_state', JSON.stringify(sidebarState));
     if (window.AppSync && !isSyncingFromCalculator) {
@@ -411,18 +412,43 @@ document.addEventListener('DOMContentLoaded', () => {
             setVal('iEveFreq', state.eveFreq);
             setVal('iEveTime', state.eveTime);
             setVal('iEvePrice', state.evePrice || '1344,00');
+            
+            if (state.priceIncludes !== undefined) {
+                const el = document.getElementById('oPriceIncludes');
+                if (el) el.innerText = state.priceIncludes;
+            }
         } catch (e) {
             console.error("Błąd wczytywania stanu paska bocznego oferty:", e);
         }
-    }
-
-    const savedCalc = AppSync.loadCalculator() ? JSON.stringify(AppSync.loadCalculator()) : null;
-    if (savedCalc) {
-        applyCalcData(JSON.parse(savedCalc));
-    }
-
-    // --- NOWE: Przywracanie obrazów ---
-    restoreImages();
+     }
+ 
+     const savedCalc = AppSync.loadCalculator() ? JSON.stringify(AppSync.loadCalculator()) : null;
+     if (savedCalc) {
+         applyCalcData(JSON.parse(savedCalc));
+     }
+ 
+     // Obsługa edycji pola "Proponowana cena obejmuje..."
+     const priceIncludesEl = document.getElementById('oPriceIncludes');
+     if (priceIncludesEl) {
+         priceIncludesEl.addEventListener('input', () => {
+             const savedSidebar = localStorage.getItem('oferta_sidebar_state');
+             if (savedSidebar) {
+                 try {
+                     const state = JSON.parse(savedSidebar);
+                     state.priceIncludes = priceIncludesEl.innerText.trim();
+                     localStorage.setItem('oferta_sidebar_state', JSON.stringify(state));
+                     if (window.parent && window.parent.electronAPI) {
+                         window.parent.electronAPI.setDirty(true);
+                     }
+                 } catch (e) {
+                     console.error(e);
+                 }
+             }
+         });
+     }
+ 
+     // --- NOWE: Przywracanie obrazów ---
+     restoreImages();
 
     renderTasksTable();
     renderTasksTableDay();
