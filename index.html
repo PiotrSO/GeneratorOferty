@@ -378,10 +378,7 @@
         }, 3000);
     };
 
-    if (sessionStorage.getItem('show_reset_toast') === 'true') {
-        sessionStorage.removeItem('show_reset_toast');
-        window.showToast("Wczytano wartości domyślne dla całej aplikacji!", "success");
-    }
+
 
     function switchApp(index, element) {
         const frames = document.querySelectorAll('.app-frame');
@@ -619,8 +616,8 @@
             localStorage.setItem('oferta_images_state', JSON.stringify({}));
             localStorage.setItem('admin_system_config', JSON.stringify(defaultAdminConfig));
             
-            sessionStorage.setItem('show_reset_toast', 'true');
-            window.location.reload();
+            window.forceRefreshAll();
+            showToast("Wczytano wartości domyślne dla całej aplikacji!", "success");
         }
     };
 
@@ -631,19 +628,6 @@
                 window.electronAPI.closeAppForced();
             }
         });
-    }
-
-    // Temporary debug trigger to check why edit mode is blocked
-    if (!sessionStorage.getItem('auto_triggered')) {
-        sessionStorage.setItem('auto_triggered', 'true');
-        setTimeout(() => {
-            console.log("TEST: Auto-triggering loadDefaultProject...");
-            // Mock confirm to always return true for automatic test
-            const originalConfirm = window.confirm;
-            window.confirm = () => true;
-            window.loadDefaultProject();
-            window.confirm = originalConfirm;
-        }, 3000);
     }
 </script>
 </body>
